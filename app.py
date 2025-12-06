@@ -21,6 +21,29 @@ except ImportError:
     IRISH_CALENDAR_ENABLED = False
     print("Warning: irish_school_calendar.py not found - using simple streak logic")
 
+# Import Adaptive Learning System
+try:
+    from adaptive_learning_routes import register_adaptive_routes, update_adaptive_after_quiz
+    ADAPTIVE_LEARNING_AVAILABLE = True
+except ImportError:
+    ADAPTIVE_LEARNING_AVAILABLE = False
+    print("Note: Adaptive Learning System not available")
+
+# Import Adaptive Question System (parallel system with _adaptive suffix)
+try:
+    from question_generator_adaptive import register_adaptive_generator_routes
+    ADAPTIVE_GENERATOR_AVAILABLE = True
+except ImportError:
+    ADAPTIVE_GENERATOR_AVAILABLE = False
+    print("Note: Adaptive Question Generator not available")
+
+try:
+    from adaptive_quiz_engine import register_adaptive_quiz_routes
+    ADAPTIVE_QUIZ_ENGINE_AVAILABLE = True
+except ImportError:
+    ADAPTIVE_QUIZ_ENGINE_AVAILABLE = False
+    print("Note: Adaptive Quiz Engine not available")
+
 app = Flask(__name__)
 
 # ==================== FEATURE FLAGS ====================
@@ -292,6 +315,51 @@ class QuestionFlag(db.Model):
             'resolved_at': self.resolved_at.isoformat() if self.resolved_at else None,
             'resolver_name': self.resolver.full_name if self.resolver else None
         }
+
+
+class AdaptiveQuestionFlag(db.Model):
+    """Track user-reported issues with adaptive quiz questions"""
+    __tablename__ = 'adaptive_question_flags'
+    id = db.Column(db.Integer, primary_key=True)
+    question_id = db.Column(db.Integer, nullable=False)  # References questions_adaptive.id
+    topic = db.Column(db.String(50), nullable=False)  # Topic for context
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    guest_identifier = db.Column(db.String(100), nullable=True)
+    flag_type = db.Column(db.String(50), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    question_text = db.Column(db.Text)  # Store question text for reference
+    status = db.Column(db.String(20), default='pending')
+    admin_notes = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    resolved_at = db.Column(db.DateTime)
+    resolved_by = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    reporter = db.relationship('User', foreign_keys=[user_id], backref='adaptive_flags_reported')
+    resolver = db.relationship('User', foreign_keys=[resolved_by], backref='adaptive_flags_resolved')
+
+    def to_dict(self):
+        if self.user_id:
+            reporter_name = self.reporter.full_name if self.reporter else 'Unknown User'
+        else:
+            reporter_name = f"Guest ({self.guest_identifier or 'Anonymous'})"
+
+        return {
+            'id': self.id,
+            'question_id': self.question_id,
+            'topic': self.topic,
+            'user_id': self.user_id,
+            'user_name': reporter_name,
+            'flag_type': self.flag_type,
+            'description': self.description,
+            'question_text': self.question_text,
+            'status': self.status,
+            'admin_notes': self.admin_notes,
+            'created_at': self.created_at.isoformat(),
+            'resolved_at': self.resolved_at.isoformat() if self.resolved_at else None,
+            'resolver_name': self.resolver.full_name if self.resolver else None,
+            'is_adaptive': True
+        }
+
 
 class QuestionEdit(db.Model):
     """Track all edits made to questions"""
@@ -2755,6 +2823,351 @@ def get_questions(topic, difficulty):
     
     return jsonify(selected_questions)
 
+
+# ===== ADAPTIVE QUIZ BETA API =====
+@app.route('/api/adaptive/question/<topic>/<int:level>')
+@guest_or_login_required
+@approved_required
+def get_adaptive_question(topic, level):
+    """
+    Get a random question for adaptive quiz at the specified level.
+    Uses questions_adaptive table with difficulty_level column.
+    Supports ?exclude=1,2,3 parameter to avoid repeating questions.
+    """
+    from sqlalchemy import text
+    
+    # Get excluded question IDs from query parameter
+    exclude_param = request.args.get('exclude', '')
+    excluded_ids = []
+    if exclude_param:
+        try:
+            excluded_ids = [int(x) for x in exclude_param.split(',') if x.strip().isdigit()]
+        except:
+            excluded_ids = []
+    
+    # Map level to difficulty band
+    if level <= 3:
+        band = 'beginner'
+    elif level <= 6:
+        band = 'intermediate'
+    elif level <= 9:
+        band = 'advanced'
+    elif level == 10:
+        band = 'mastery'
+    elif level == 11:
+        band = 'application'
+    else:
+        band = 'linked'  # Level 12
+    
+    # Get user identifier for tracking
+    user_id = session.get('user_id') if not session.get('is_guest') else None
+    guest_code = session.get('guest_code')
+    
+    try:
+        # Build exclusion clause
+        exclude_clause = ""
+        params = {'topic': topic, 'level': level, 'band': band}
+        if excluded_ids:
+            exclude_clause = f"AND id NOT IN ({','.join(str(x) for x in excluded_ids)})"
+        
+        # Try to get a question from questions_adaptive table
+        result = db.session.execute(text(f"""
+            SELECT id, topic, question_text, option_a, option_b, option_c, option_d,
+                   correct_answer, explanation, difficulty_level, difficulty_band,
+                   question_type, image_svg
+            FROM questions_adaptive
+            WHERE topic = :topic 
+              AND difficulty_level = :level
+              AND is_active = 1
+              {exclude_clause}
+            ORDER BY RANDOM()
+            LIMIT 1
+        """), params).fetchone()
+        
+        # If no exact level match, try the band
+        if not result:
+            result = db.session.execute(text(f"""
+                SELECT id, topic, question_text, option_a, option_b, option_c, option_d,
+                       correct_answer, explanation, difficulty_level, difficulty_band,
+                       question_type, image_svg
+                FROM questions_adaptive
+                WHERE topic = :topic 
+                  AND difficulty_band = :band
+                  AND is_active = 1
+                  {exclude_clause}
+                ORDER BY RANDOM()
+                LIMIT 1
+            """), params).fetchone()
+        
+        # If still no result and we have exclusions, try without exclusions (allow repeats)
+        if not result and excluded_ids:
+            result = db.session.execute(text("""
+                SELECT id, topic, question_text, option_a, option_b, option_c, option_d,
+                       correct_answer, explanation, difficulty_level, difficulty_band,
+                       question_type, image_svg
+                FROM questions_adaptive
+                WHERE topic = :topic 
+                  AND difficulty_band = :band
+                  AND is_active = 1
+                ORDER BY RANDOM()
+                LIMIT 1
+            """), {'topic': topic, 'band': band}).fetchone()
+        
+        if result:
+            question = {
+                'id': result.id,
+                'topic': result.topic,
+                'question_text': result.question_text,
+                'option_a': result.option_a,
+                'option_b': result.option_b,
+                'option_c': result.option_c,
+                'option_d': result.option_d,
+                'correct_answer': result.correct_answer,
+                'explanation': result.explanation or '',
+                'difficulty_level': result.difficulty_level,
+                'difficulty_band': result.difficulty_band,
+                'question_type': result.question_type or 'text',
+                'image_svg': result.image_svg or None
+            }
+            return jsonify(question)
+        else:
+            # Fallback: Try regular questions table with matching difficulty
+            difficulty_map = {'beginner': 'easy', 'intermediate': 'medium', 'advanced': 'hard'}
+            difficulty = difficulty_map.get(band, 'medium')
+            
+            fallback = Question.query.filter_by(topic=topic, difficulty=difficulty).order_by(db.func.random()).first()
+            
+            if fallback:
+                question = fallback.to_dict()
+                question['image_svg'] = None  # Regular questions don't have SVG
+                question['difficulty_level'] = level
+                question['difficulty_band'] = band
+                return jsonify(question)
+            else:
+                return jsonify({'error': f'No questions found for {topic} at level {level}'}), 404
+                
+    except Exception as e:
+        print(f"Error getting adaptive question: {e}")
+        # Table might not exist - fallback to regular questions
+        difficulty_map = {'beginner': 'easy', 'intermediate': 'medium', 'advanced': 'hard'}
+        difficulty = difficulty_map.get(band, 'medium')
+        
+        fallback = Question.query.filter_by(topic=topic, difficulty=difficulty).order_by(db.func.random()).first()
+        
+        if fallback:
+            question = fallback.to_dict()
+            question['image_svg'] = None
+            question['difficulty_level'] = level
+            question['difficulty_band'] = band
+            return jsonify(question)
+        else:
+            return jsonify({'error': f'No questions found for {topic}'}), 404
+
+
+@app.route('/api/adaptive/progress/<topic>')
+@guest_or_login_required
+def get_adaptive_progress(topic):
+    """
+    Get the user's current progress/level for a topic.
+    """
+    from sqlalchemy import text
+    
+    user_id = session.get('user_id') if not session.get('is_guest') else None
+    guest_code = session.get('guest_code')
+    
+    try:
+        # Check for existing progress
+        if user_id:
+            result = db.session.execute(text("""
+                SELECT current_level, current_points, total_questions, correct_answers
+                FROM adaptive_progress
+                WHERE user_id = :user_id AND topic = :topic
+            """), {'user_id': user_id, 'topic': topic}).fetchone()
+        elif guest_code:
+            result = db.session.execute(text("""
+                SELECT current_level, current_points, total_questions, correct_answers
+                FROM adaptive_progress
+                WHERE guest_code = :guest_code AND topic = :topic
+            """), {'guest_code': guest_code, 'topic': topic}).fetchone()
+        else:
+            result = None
+        
+        if result:
+            return jsonify({
+                'topic': topic,
+                'current_level': result.current_level,
+                'current_points': result.current_points,
+                'total_questions': result.total_questions,
+                'correct_answers': result.correct_answers
+            })
+        else:
+            # No progress yet - start at level 1
+            return jsonify({
+                'topic': topic,
+                'current_level': 1,
+                'current_points': 0,
+                'total_questions': 0,
+                'correct_answers': 0
+            })
+            
+    except Exception as e:
+        print(f"Error getting adaptive progress: {e}")
+        # Table might not exist
+        return jsonify({
+            'topic': topic,
+            'current_level': 1,
+            'current_points': 0,
+            'total_questions': 0,
+            'correct_answers': 0
+        })
+
+
+@app.route('/api/adaptive/save-progress', methods=['POST'])
+@guest_or_login_required
+def save_adaptive_progress():
+    """
+    Save the user's progress for a topic.
+    """
+    from sqlalchemy import text
+    
+    data = request.get_json()
+    topic = data.get('topic')
+    current_level = data.get('current_level', 1)
+    current_points = data.get('current_points', 0)
+    
+    user_id = session.get('user_id') if not session.get('is_guest') else None
+    guest_code = session.get('guest_code')
+    
+    if not topic:
+        return jsonify({'error': 'Topic is required'}), 400
+    
+    try:
+        if user_id:
+            db.session.execute(text("""
+                INSERT INTO adaptive_progress (user_id, topic, current_level, current_points, updated_at)
+                VALUES (:user_id, :topic, :level, :points, CURRENT_TIMESTAMP)
+                ON CONFLICT(user_id, topic) DO UPDATE SET
+                    current_level = :level,
+                    current_points = :points,
+                    updated_at = CURRENT_TIMESTAMP
+            """), {'user_id': user_id, 'topic': topic, 'level': current_level, 'points': current_points})
+        elif guest_code:
+            db.session.execute(text("""
+                INSERT INTO adaptive_progress (guest_code, topic, current_level, current_points, updated_at)
+                VALUES (:guest_code, :topic, :level, :points, CURRENT_TIMESTAMP)
+                ON CONFLICT(guest_code, topic) DO UPDATE SET
+                    current_level = :level,
+                    current_points = :points,
+                    updated_at = CURRENT_TIMESTAMP
+            """), {'guest_code': guest_code, 'topic': topic, 'level': current_level, 'points': current_points})
+        
+        db.session.commit()
+        return jsonify({'success': True})
+        
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error saving adaptive progress: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/adaptive/reset-progress', methods=['POST'])
+@guest_or_login_required
+def reset_adaptive_progress():
+    """
+    Reset the user's progress for a topic back to level 1.
+    """
+    from sqlalchemy import text
+    
+    data = request.get_json()
+    topic = data.get('topic')
+    
+    user_id = session.get('user_id') if not session.get('is_guest') else None
+    guest_code = session.get('guest_code')
+    
+    if not topic:
+        return jsonify({'error': 'Topic is required'}), 400
+    
+    try:
+        if user_id:
+            db.session.execute(text("""
+                DELETE FROM adaptive_progress
+                WHERE user_id = :user_id AND topic = :topic
+            """), {'user_id': user_id, 'topic': topic})
+        elif guest_code:
+            db.session.execute(text("""
+                DELETE FROM adaptive_progress
+                WHERE guest_code = :guest_code AND topic = :topic
+            """), {'guest_code': guest_code, 'topic': topic})
+        
+        db.session.commit()
+        return jsonify({'success': True, 'message': f'Progress reset for {topic}'})
+        
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error resetting adaptive progress: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/award-points', methods=['POST'])
+@guest_or_login_required
+def award_points():
+    """
+    Award points to a user's account.
+    Used by adaptive quiz and other features.
+    """
+    from sqlalchemy import text
+    
+    data = request.get_json()
+    points = data.get('points', 0)
+    source = data.get('source', 'unknown')
+    topic = data.get('topic', '')
+    level = data.get('level', 1)
+    
+    if points <= 0:
+        return jsonify({'success': False, 'error': 'Invalid points value'}), 400
+    
+    user_id = session.get('user_id') if not session.get('is_guest') else None
+    
+    # Only registered users can earn persistent points
+    if not user_id:
+        # Guest users - acknowledge but don't persist
+        return jsonify({
+            'success': True, 
+            'points_awarded': points,
+            'message': 'Points not persisted for guest users'
+        })
+    
+    try:
+        # Get or create user stats
+        stats = UserStats.query.filter_by(user_id=user_id).first()
+        if not stats:
+            stats = UserStats(user_id=user_id, total_points=0, level=1)
+            db.session.add(stats)
+        
+        # Add points
+        stats.total_points += points
+        
+        # Recalculate level (every 100 points = 1 level)
+        stats.level = (stats.total_points // 100) + 1
+        
+        db.session.commit()
+        
+        print(f"📊 Awarded {points} points to user {user_id} from {source} ({topic} L{level})")
+        
+        return jsonify({
+            'success': True,
+            'points_awarded': points,
+            'total_points': stats.total_points,
+            'level': stats.level
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error awarding points: {e}")
+        return jsonify({'error': str(e)}), 500
+
+# ===== END ADAPTIVE QUIZ BETA API =====
+
 @app.route('/api/create-quiz-attempt', methods=['POST'])
 @login_required
 @approved_required
@@ -2972,11 +3385,31 @@ def submit_quiz():
     # Update stats and check for badges
     stats, newly_earned_badges = update_user_stats_after_quiz(session['user_id'], attempt)
 
+    # Update Adaptive Learning System
+    adaptive_result = None
+    if ADAPTIVE_LEARNING_AVAILABLE:
+        try:
+            # Get question-level results if provided
+            question_results = data.get('question_results', None)
+            adaptive_result = update_adaptive_after_quiz(
+                user_id=session['user_id'],
+                topic=topic,
+                difficulty=difficulty,
+                score=score,
+                total_questions=total,
+                time_taken=time_taken,
+                question_results=question_results
+            )
+        except Exception as e:
+            print(f"Adaptive learning update error: {e}")
+            adaptive_result = None
+
     return jsonify({
         'message': 'Quiz submitted successfully',
         'attempt': attempt.to_dict(),
         'stats': stats.to_dict(),
-        'newly_earned_badges': newly_earned_badges
+        'newly_earned_badges': newly_earned_badges,
+        'adaptive': adaptive_result
     }), 201
 
 @app.route('/api/my-progress')
@@ -5765,6 +6198,75 @@ def flag_question():
         'flag': flag.to_dict()
     }), 201
 
+
+@app.route('/api/student/flag-adaptive-question', methods=['POST'])
+def flag_adaptive_question():
+    """Flag an adaptive quiz question - works for both registered and guest users"""
+    from sqlalchemy import text
+    
+    data = request.json
+
+    question_id = data.get('question_id')
+    topic = data.get('topic', '')
+    flag_type = data.get('flag_type')
+    description = data.get('description', '').strip()
+    question_text = data.get('question_text', '')
+
+    if not all([question_id, flag_type, description]):
+        return jsonify({'error': 'Question ID, flag type, and description are required'}), 400
+
+    if flag_type not in ['incorrect', 'ambiguous', 'typo', 'other']:
+        return jsonify({'error': 'Invalid flag type'}), 400
+
+    # Verify the adaptive question exists
+    result = db.session.execute(text(
+        "SELECT id, question_text FROM questions_adaptive WHERE id = :qid"
+    ), {'qid': question_id}).fetchone()
+    
+    if not result:
+        return jsonify({'error': 'Adaptive question not found'}), 404
+    
+    # Use stored question text if not provided
+    if not question_text:
+        question_text = result[1]
+
+    # Check if user is logged in
+    if 'user_id' in session:
+        # Registered user
+        flag = AdaptiveQuestionFlag(
+            question_id=question_id,
+            topic=topic,
+            user_id=session['user_id'],
+            flag_type=flag_type,
+            description=description,
+            question_text=question_text
+        )
+    else:
+        # Guest user
+        import hashlib
+        guest_id = request.remote_addr or 'unknown'
+        user_agent = request.headers.get('User-Agent', '')
+        guest_identifier = hashlib.md5(f"{guest_id}{user_agent}".encode()).hexdigest()[:16]
+
+        flag = AdaptiveQuestionFlag(
+            question_id=question_id,
+            topic=topic,
+            user_id=None,
+            guest_identifier=guest_identifier,
+            flag_type=flag_type,
+            description=description,
+            question_text=question_text
+        )
+
+    db.session.add(flag)
+    db.session.commit()
+
+    return jsonify({
+        'message': 'Question flagged successfully. An administrator will review it.',
+        'flag': flag.to_dict()
+    }), 201
+
+
 @app.route('/api/student/my-flags')
 def get_my_flags():
     """Get all flags submitted by current user or guest"""
@@ -5785,14 +6287,27 @@ def get_my_flags():
 @login_required
 @role_required('admin')
 def get_pending_flags():
-    """Get all pending question flags"""
-    flags = QuestionFlag.query.filter_by(status='pending').order_by(QuestionFlag.created_at.desc()).all()
+    """Get all pending question flags (both standard and adaptive)"""
+    # Standard question flags
+    standard_flags = QuestionFlag.query.filter_by(status='pending').order_by(QuestionFlag.created_at.desc()).all()
 
     flags_with_questions = []
-    for flag in flags:
+    for flag in standard_flags:
         flag_dict = flag.to_dict()
         flag_dict['question'] = flag.question.to_dict()
+        flag_dict['is_adaptive'] = False
         flags_with_questions.append(flag_dict)
+    
+    # Adaptive question flags
+    adaptive_flags = AdaptiveQuestionFlag.query.filter_by(status='pending').order_by(AdaptiveQuestionFlag.created_at.desc()).all()
+    
+    for flag in adaptive_flags:
+        flag_dict = flag.to_dict()
+        flag_dict['is_adaptive'] = True
+        flags_with_questions.append(flag_dict)
+    
+    # Sort combined list by created_at
+    flags_with_questions.sort(key=lambda x: x['created_at'], reverse=True)
 
     return jsonify(flags_with_questions)
 
@@ -5800,9 +6315,10 @@ def get_pending_flags():
 @login_required
 @role_required('admin')
 def get_all_flags():
-    """Get all question flags"""
+    """Get all question flags (both standard and adaptive)"""
     status_filter = request.args.get('status')
 
+    # Standard question flags
     query = QuestionFlag.query
     if status_filter:
         query = query.filter_by(status=status_filter)
@@ -5813,7 +6329,32 @@ def get_all_flags():
     for flag in flags:
         flag_dict = flag.to_dict()
         flag_dict['question'] = flag.question.to_dict()
+        flag_dict['is_adaptive'] = False
         flags_with_questions.append(flag_dict)
+    
+    # Adaptive question flags
+    adaptive_query = AdaptiveQuestionFlag.query
+    if status_filter:
+        adaptive_query = adaptive_query.filter_by(status=status_filter)
+    
+    adaptive_flags = adaptive_query.order_by(AdaptiveQuestionFlag.created_at.desc()).all()
+    
+    for flag in adaptive_flags:
+        flag_dict = flag.to_dict()
+        # Create a question-like object for display consistency
+        flag_dict['question'] = {
+            'id': flag.question_id,
+            'question': flag.question_text or 'Adaptive Question',
+            'topic': flag.topic,
+            'options': [],  # Adaptive questions need to be fetched separately
+            'correct': None,
+            'is_adaptive': True
+        }
+        flag_dict['is_adaptive'] = True
+        flags_with_questions.append(flag_dict)
+    
+    # Sort combined list by created_at
+    flags_with_questions.sort(key=lambda x: x['created_at'], reverse=True)
 
     return jsonify(flags_with_questions)
 
@@ -5822,8 +6363,13 @@ def get_all_flags():
 @role_required('admin')
 def dismiss_flag(flag_id):
     """Dismiss a flag without making changes"""
-    flag = QuestionFlag.query.get_or_404(flag_id)
     data = request.json
+    is_adaptive = data.get('is_adaptive', False)
+    
+    if is_adaptive:
+        flag = AdaptiveQuestionFlag.query.get_or_404(flag_id)
+    else:
+        flag = QuestionFlag.query.get_or_404(flag_id)
 
     flag.status = 'dismissed'
     flag.admin_notes = data.get('notes', '')
@@ -5869,6 +6415,117 @@ def get_all_questions():
 
     questions = query.order_by(Question.topic, Question.difficulty, Question.id).all()
     return jsonify([q.to_dict() for q in questions])
+
+
+@app.route('/api/admin/adaptive-questions')
+@login_required
+@role_required('admin')
+def get_all_adaptive_questions():
+    """Get all adaptive questions with optional filters for management"""
+    from sqlalchemy import text
+    
+    topic = request.args.get('topic', '')
+    level_band = request.args.get('level_band', '')  # This maps to difficulty_band in DB
+    
+    try:
+        # Build query using correct column names from schema
+        query = """SELECT id, topic, difficulty_band, difficulty_level, question_text, question_type, 
+                          option_a, option_b, option_c, option_d, correct_answer 
+                   FROM questions_adaptive WHERE is_active = 1"""
+        params = {}
+        
+        if topic:
+            query += " AND topic = :topic"
+            params['topic'] = topic
+        if level_band:
+            query += " AND difficulty_band = :difficulty_band"
+            params['difficulty_band'] = level_band
+        
+        query += " ORDER BY topic, difficulty_level, id LIMIT 200"
+        
+        result = db.session.execute(text(query), params).fetchall()
+        
+        questions = []
+        for row in result:
+            try:
+                # Handle correct answer - stored as 0/1/2/3 in DB
+                correct_answer_raw = row[10]
+                if correct_answer_raw is not None:
+                    if isinstance(correct_answer_raw, int):
+                        correct_index = correct_answer_raw
+                        correct_letter = ['A', 'B', 'C', 'D'][correct_index] if 0 <= correct_index <= 3 else 'A'
+                    else:
+                        correct_str = str(correct_answer_raw).upper().strip()
+                        if correct_str in ['A', 'B', 'C', 'D']:
+                            correct_index = ['A', 'B', 'C', 'D'].index(correct_str)
+                            correct_letter = correct_str
+                        elif correct_str in ['0', '1', '2', '3']:
+                            correct_index = int(correct_str)
+                            correct_letter = ['A', 'B', 'C', 'D'][correct_index]
+                        else:
+                            correct_index = 0
+                            correct_letter = 'A'
+                else:
+                    correct_index = 0
+                    correct_letter = 'A'
+                
+                questions.append({
+                    'id': row[0],
+                    'topic': str(row[1]) if row[1] else 'unknown',
+                    'level_band': str(row[2]) if row[2] else 'beginner',  # difficulty_band -> level_band for frontend
+                    'level': int(row[3]) if row[3] else 1,  # difficulty_level -> level for frontend
+                    'question': str(row[4]) if row[4] else '',
+                    'question_text': str(row[4]) if row[4] else '',
+                    'question_type': str(row[5]) if row[5] else 'multiple_choice',
+                    'options': [
+                        str(row[6]) if row[6] else '',
+                        str(row[7]) if row[7] else '',
+                        str(row[8]) if row[8] else '',
+                        str(row[9]) if row[9] else ''
+                    ],
+                    'option_a': str(row[6]) if row[6] else '',
+                    'option_b': str(row[7]) if row[7] else '',
+                    'option_c': str(row[8]) if row[8] else '',
+                    'option_d': str(row[9]) if row[9] else '',
+                    'correct': correct_index,
+                    'correct_answer': correct_letter,
+                    'has_svg': False,
+                    'is_adaptive': True,
+                    'difficulty': str(row[2]) if row[2] else 'beginner'
+                })
+            except Exception as row_error:
+                print(f"Error processing row {row[0]}: {row_error}")
+                continue
+        
+        return jsonify(questions)
+    except Exception as e:
+        import traceback
+        error_detail = traceback.format_exc()
+        print(f"Error loading adaptive questions: {error_detail}")
+        return jsonify({'error': str(e), 'detail': error_detail}), 500
+
+
+@app.route('/api/admin/adaptive-topics-list')
+@login_required
+@role_required('admin')
+def get_adaptive_topics_list():
+    """Get list of adaptive quiz topics with question counts"""
+    from sqlalchemy import text
+    
+    try:
+        result = db.session.execute(text("""
+            SELECT topic, COUNT(*) as count 
+            FROM questions_adaptive 
+            WHERE is_active = 1
+            GROUP BY topic 
+            ORDER BY topic
+        """)).fetchall()
+        
+        topics = [{'topic': row[0], 'count': row[1]} for row in result]
+        return jsonify(topics)
+    except Exception as e:
+        print(f"Error loading adaptive topics: {e}")
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/admin/question/<int:question_id>/edit', methods=['PUT'])
 @login_required
@@ -5983,6 +6640,140 @@ def get_question_history(question_id):
         'question': question.to_dict(),
         'edit_history': [e.to_dict() for e in edits]
     })
+
+
+@app.route('/api/admin/adaptive-flag/<int:flag_id>/resolve', methods=['POST'])
+@login_required
+@role_required('admin')
+def resolve_adaptive_flag(flag_id):
+    """Resolve an adaptive question flag"""
+    flag = AdaptiveQuestionFlag.query.get_or_404(flag_id)
+    
+    data = request.json or {}
+    admin_notes = data.get('admin_notes', 'Resolved by admin')
+    
+    flag.status = 'resolved'
+    flag.resolved_at = datetime.utcnow()
+    flag.resolved_by = session['user_id']
+    flag.admin_notes = admin_notes
+    
+    db.session.commit()
+    
+    return jsonify({
+        'message': 'Flag resolved successfully',
+        'flag': flag.to_dict()
+    })
+
+
+@app.route('/api/admin/adaptive-question/<int:question_id>', methods=['GET'])
+@login_required
+@role_required('admin')
+def get_adaptive_question_admin(question_id):
+    """Get adaptive question details for admin"""
+    from sqlalchemy import text
+    
+    try:
+        result = db.session.execute(text("""
+            SELECT id, topic, difficulty_band, difficulty_level, question_text, question_type,
+                   option_a, option_b, option_c, option_d, correct_answer
+            FROM questions_adaptive WHERE id = :qid
+        """), {'qid': question_id}).fetchone()
+        
+        if not result:
+            return jsonify({'error': 'Question not found'}), 404
+        
+        # Get flags for this question
+        flags = AdaptiveQuestionFlag.query.filter_by(question_id=question_id).order_by(AdaptiveQuestionFlag.created_at.desc()).all()
+        
+        # Handle correct answer conversion
+        correct_raw = result[10]
+        if isinstance(correct_raw, int) and 0 <= correct_raw <= 3:
+            correct_letter = ['A', 'B', 'C', 'D'][correct_raw]
+        else:
+            correct_letter = str(correct_raw).upper() if correct_raw else 'A'
+        
+        return jsonify({
+            'question': {
+                'id': result[0],
+                'topic': result[1],
+                'level_band': result[2],  # difficulty_band -> level_band for frontend
+                'level': result[3],  # difficulty_level -> level for frontend
+                'question_text': result[4],
+                'question_type': result[5],
+                'option_a': result[6],
+                'option_b': result[7],
+                'option_c': result[8],
+                'option_d': result[9],
+                'correct_answer': correct_letter,
+                'image_svg': None  # Not fetching SVG for now
+            },
+            'flags': [f.to_dict() for f in flags]
+        })
+    except Exception as e:
+        print(f"Error fetching adaptive question {question_id}: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/admin/adaptive-question/<int:question_id>', methods=['PUT'])
+@login_required
+@role_required('admin')
+def update_adaptive_question_admin(question_id):
+    """Update an adaptive question and optionally resolve flags"""
+    from sqlalchemy import text
+    
+    data = request.json
+    
+    try:
+        # Build update query
+        updates = ["updated_at = CURRENT_TIMESTAMP"]
+        params = {'qid': question_id}
+        
+        if 'question_text' in data:
+            updates.append("question_text = :question_text")
+            params['question_text'] = data['question_text']
+        if 'option_a' in data:
+            updates.append("option_a = :option_a")
+            params['option_a'] = data['option_a']
+        if 'option_b' in data:
+            updates.append("option_b = :option_b")
+            params['option_b'] = data['option_b']
+        if 'option_c' in data:
+            updates.append("option_c = :option_c")
+            params['option_c'] = data['option_c']
+        if 'option_d' in data:
+            updates.append("option_d = :option_d")
+            params['option_d'] = data['option_d']
+        if 'correct_answer' in data:
+            # Convert A/B/C/D to 0/1/2/3 for DB storage
+            correct_letter = data['correct_answer'].upper()
+            if correct_letter in ['A', 'B', 'C', 'D']:
+                correct_index = ['A', 'B', 'C', 'D'].index(correct_letter)
+            else:
+                correct_index = 0
+            updates.append("correct_answer = :correct_answer")
+            params['correct_answer'] = correct_index
+        
+        query = f"UPDATE questions_adaptive SET {', '.join(updates)} WHERE id = :qid"
+        db.session.execute(text(query), params)
+        
+        # Resolve specified flags
+        if 'resolve_flag_ids' in data:
+            for flag_id in data['resolve_flag_ids']:
+                flag = AdaptiveQuestionFlag.query.get(flag_id)
+                if flag and flag.question_id == question_id:
+                    flag.status = 'resolved'
+                    flag.resolved_at = datetime.utcnow()
+                    flag.resolved_by = session['user_id']
+                    flag.admin_notes = data.get('admin_notes', 'Question edited')
+        
+        db.session.commit()
+        
+        return jsonify({'message': 'Adaptive question updated successfully'})
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error updating adaptive question {question_id}: {e}")
+        return jsonify({'error': str(e)}), 500
+
 
 @app.route('/api/admin/question/<int:question_id>/delete', methods=['DELETE'])
 @login_required
@@ -6181,19 +6972,37 @@ def get_flagged_questions():
 @login_required
 @role_required('admin')
 def flag_statistics():
-    """Get statistics about question flags"""
+    """Get statistics about question flags (both standard and adaptive)"""
+    # Standard flags
+    standard_total = QuestionFlag.query.count()
+    standard_pending = QuestionFlag.query.filter_by(status='pending').count()
+    standard_resolved = QuestionFlag.query.filter_by(status='resolved').count()
+    standard_dismissed = QuestionFlag.query.filter_by(status='dismissed').count()
+    
+    # Adaptive flags
+    adaptive_total = AdaptiveQuestionFlag.query.count()
+    adaptive_pending = AdaptiveQuestionFlag.query.filter_by(status='pending').count()
+    adaptive_resolved = AdaptiveQuestionFlag.query.filter_by(status='resolved').count()
+    adaptive_dismissed = AdaptiveQuestionFlag.query.filter_by(status='dismissed').count()
+    
     stats = {
-        'total_flags': QuestionFlag.query.count(),
-        'pending_flags': QuestionFlag.query.filter_by(status='pending').count(),
-        'resolved_flags': QuestionFlag.query.filter_by(status='resolved').count(),
-        'dismissed_flags': QuestionFlag.query.filter_by(status='dismissed').count(),
+        'total_flags': standard_total + adaptive_total,
+        'pending_flags': standard_pending + adaptive_pending,
+        'resolved_flags': standard_resolved + adaptive_resolved,
+        'dismissed_flags': standard_dismissed + adaptive_dismissed,
         'flagged_questions': db.session.query(QuestionFlag.question_id).filter_by(status='pending').distinct().count(),
+        'flagged_adaptive_questions': db.session.query(AdaptiveQuestionFlag.question_id).filter_by(status='pending').distinct().count(),
         'total_edits': QuestionEdit.query.count(),
-        'by_flag_type': {}
+        'by_flag_type': {},
+        # Breakdown for display
+        'standard_pending': standard_pending,
+        'adaptive_pending': adaptive_pending
     }
 
     for flag_type in ['incorrect', 'ambiguous', 'typo', 'other']:
-        stats['by_flag_type'][flag_type] = QuestionFlag.query.filter_by(flag_type=flag_type, status='pending').count()
+        standard_count = QuestionFlag.query.filter_by(flag_type=flag_type, status='pending').count()
+        adaptive_count = AdaptiveQuestionFlag.query.filter_by(flag_type=flag_type, status='pending').count()
+        stats['by_flag_type'][flag_type] = standard_count + adaptive_count
 
     return jsonify(stats)
 
@@ -8848,6 +9657,7 @@ def who_am_i_start():
 
     # Get a random active image for this topic/difficulty
     # Now uses the junction table for multi-topic support
+    # For adaptive quizzes, try 'adaptive' difficulty first, then fall back to any difficulty
     result = db.session.execute(text("""
         SELECT DISTINCT i.id, i.image_filename, i.answer, i.hint
         FROM who_am_i_images i
@@ -8856,6 +9666,29 @@ def who_am_i_start():
         ORDER BY RANDOM()
         LIMIT 1
     """), {'topic': topic, 'difficulty': difficulty}).fetchone()
+    
+    # Fallback: if difficulty is 'adaptive' and no images found, try any difficulty
+    if not result and difficulty == 'adaptive':
+        print(f"🔄 WHO AM I START - No 'adaptive' images, trying any difficulty for topic={topic}")
+        result = db.session.execute(text("""
+            SELECT DISTINCT i.id, i.image_filename, i.answer, i.hint
+            FROM who_am_i_images i
+            JOIN who_am_i_image_topics t ON i.id = t.image_id
+            WHERE t.topic = :topic AND i.active = 1
+            ORDER BY RANDOM()
+            LIMIT 1
+        """), {'topic': topic}).fetchone()
+    
+    # Second fallback: if still no images for specific topic, use any available image
+    if not result and difficulty == 'adaptive':
+        print(f"🔄 WHO AM I START - No images for topic={topic}, trying any available image")
+        result = db.session.execute(text("""
+            SELECT DISTINCT i.id, i.image_filename, i.answer, i.hint
+            FROM who_am_i_images i
+            WHERE i.active = 1
+            ORDER BY RANDOM()
+            LIMIT 1
+        """)).fetchone()
 
     if not result:
         print(f"❌ WHO AM I START - No images found for topic={topic}, difficulty={difficulty}")
@@ -9073,14 +9906,32 @@ def who_am_i_guess():
     next_session_data = None
     if is_correct:
         try:
-            # Get the current quiz topic and difficulty
-            quiz_info = db.session.execute(text("""
-                SELECT topic, difficulty FROM quiz_attempts WHERE id = :quiz_id
-            """), {'quiz_id': quiz_attempt_id}).fetchone()
+            # Get topic/difficulty - prefer from request (for adaptive quiz), fall back to quiz_attempts
+            request_topic = data.get('topic')
+            request_difficulty = data.get('difficulty')
+            
+            quiz_topic = None
+            quiz_difficulty = None
+            
+            if request_topic and request_difficulty:
+                # Use values from request (adaptive quiz passes these directly)
+                quiz_topic = request_topic
+                quiz_difficulty = request_difficulty
+                print(f"🔍 Using topic/difficulty from request: {quiz_topic}, {quiz_difficulty}")
+            else:
+                # Fall back to quiz_attempts lookup (regular quiz)
+                quiz_info = db.session.execute(text("""
+                    SELECT topic, difficulty FROM quiz_attempts WHERE id = :quiz_id
+                """), {'quiz_id': quiz_attempt_id}).fetchone()
+                
+                if quiz_info:
+                    quiz_topic = quiz_info.topic
+                    quiz_difficulty = quiz_info.difficulty
+                    print(f"🔍 Using topic/difficulty from quiz_attempts: {quiz_topic}, {quiz_difficulty}")
 
-            print(f"🔍 Looking for next image - quiz_id: {quiz_attempt_id}, topic: {quiz_info.topic if quiz_info else 'None'}, difficulty: {quiz_info.difficulty if quiz_info else 'None'}")
+            print(f"🔍 Looking for next image - quiz_id: {quiz_attempt_id}, topic: {quiz_topic}, difficulty: {quiz_difficulty}")
 
-            if quiz_info:
+            if quiz_topic:
                 # Get list of images already shown in this quiz
                 shown_images = db.session.execute(text("""
                     SELECT image_id FROM who_am_i_sessions
@@ -9095,7 +9946,7 @@ def who_am_i_guess():
                     # Create string of IDs for NOT IN clause
                     id_list = ','.join([str(id) for id in shown_image_ids])
 
-                    print(f"🔎 Searching with: topic={quiz_info.topic}, difficulty={quiz_info.difficulty}, excluding IDs: {id_list}")
+                    print(f"🔎 Searching with: topic={quiz_topic}, difficulty={quiz_difficulty}, excluding IDs: {id_list}")
 
                     next_image = db.session.execute(text(f"""
                         SELECT DISTINCT i.id, i.image_filename, i.answer, i.hint
@@ -9108,11 +9959,39 @@ def who_am_i_guess():
                         ORDER BY RANDOM()
                         LIMIT 1
                     """), {
-                        'topic': quiz_info.topic,
-                        'difficulty': quiz_info.difficulty
+                        'topic': quiz_topic,
+                        'difficulty': quiz_difficulty
                     }).fetchone()
+                    
+                    # FALLBACK: If 'adaptive' difficulty, try ANY difficulty for this topic
+                    if not next_image and quiz_difficulty == 'adaptive':
+                        print(f"🔄 No 'adaptive' images, trying any difficulty for topic={quiz_topic}")
+                        next_image = db.session.execute(text(f"""
+                            SELECT DISTINCT i.id, i.image_filename, i.answer, i.hint
+                            FROM who_am_i_images i
+                            JOIN who_am_i_image_topics t ON i.id = t.image_id
+                            WHERE t.topic = :topic
+                            AND i.active = 1
+                            AND i.id NOT IN ({id_list})
+                            ORDER BY RANDOM()
+                            LIMIT 1
+                        """), {
+                            'topic': quiz_topic
+                        }).fetchone()
+                    
+                    # FALLBACK 2: Try ANY active image not yet shown
+                    if not next_image and quiz_difficulty == 'adaptive':
+                        print(f"🔄 No topic images, trying any active image")
+                        next_image = db.session.execute(text(f"""
+                            SELECT DISTINCT i.id, i.image_filename, i.answer, i.hint
+                            FROM who_am_i_images i
+                            WHERE i.active = 1
+                            AND i.id NOT IN ({id_list})
+                            ORDER BY RANDOM()
+                            LIMIT 1
+                        """)).fetchone()
                 else:
-                    print(f"🔎 First image search with: topic={quiz_info.topic}, difficulty={quiz_info.difficulty}")
+                    print(f"🔎 First image search with: topic={quiz_topic}, difficulty={quiz_difficulty}")
                     # First image, get any
                     next_image = db.session.execute(text("""
                         SELECT DISTINCT i.id, i.image_filename, i.answer, i.hint
@@ -9124,9 +10003,19 @@ def who_am_i_guess():
                         ORDER BY RANDOM()
                         LIMIT 1
                     """), {
-                        'topic': quiz_info.topic,
-                        'difficulty': quiz_info.difficulty
+                        'topic': quiz_topic,
+                        'difficulty': quiz_difficulty
                     }).fetchone()
+                    
+                    # FALLBACK for first image too
+                    if not next_image and quiz_difficulty == 'adaptive':
+                        next_image = db.session.execute(text("""
+                            SELECT DISTINCT i.id, i.image_filename, i.answer, i.hint
+                            FROM who_am_i_images i
+                            WHERE i.active = 1
+                            ORDER BY RANDOM()
+                            LIMIT 1
+                        """)).fetchone()
 
                 if next_image:
                     print(f"✅ Next image found! ID: {next_image.id}, Answer: {next_image.answer}")
@@ -9150,7 +10039,7 @@ def who_am_i_guess():
                     }
                     print(f"✅ New session created: {new_session.lastrowid}")
                 else:
-                    print(f"ℹ️ No more images available for topic={quiz_info.topic}, difficulty={quiz_info.difficulty}")
+                    print(f"ℹ️ No more images available for topic={quiz_topic}, difficulty={quiz_difficulty}")
         except Exception as e:
             # Log error but don't break the guess response
             print(f"❌ Error loading next Who Am I image: {e}")
@@ -13303,6 +14192,21 @@ def get_ai_drivers():
 # END RACING CAR PHASE 3 ROUTES
 # =====================================================
 
+
+# =====================================================
+# REGISTER ADAPTIVE LEARNING ROUTES
+# =====================================================
+if ADAPTIVE_LEARNING_AVAILABLE:
+    register_adaptive_routes(app, db)
+
+# =====================================================
+# REGISTER ADAPTIVE QUESTION SYSTEM ROUTES
+# =====================================================
+if ADAPTIVE_GENERATOR_AVAILABLE:
+    register_adaptive_generator_routes(app, db)
+
+if ADAPTIVE_QUIZ_ENGINE_AVAILABLE:
+    register_adaptive_quiz_routes(app, db)
 
 if __name__ == '__main__':
     with app.app_context():

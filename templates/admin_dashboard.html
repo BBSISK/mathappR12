@@ -167,6 +167,23 @@
         <div id="manageQuestionsContent" class="tab-content hidden">
             <h2 class="text-2xl font-bold mb-6">Manage Questions</h2>
 
+            <!-- Question Type Toggle -->
+            <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                <div class="flex items-center justify-center gap-4">
+                    <span class="font-semibold text-gray-700">Question Bank:</span>
+                    <div class="flex rounded-lg overflow-hidden border-2 border-purple-500">
+                        <button onclick="switchQuestionType('legacy')" id="btnLegacyQuestions" 
+                                class="px-6 py-2 font-semibold bg-purple-600 text-white transition-colors">
+                            <i class="fas fa-database mr-2"></i>Legacy Questions
+                        </button>
+                        <button onclick="switchQuestionType('adaptive')" id="btnAdaptiveQuestions"
+                                class="px-6 py-2 font-semibold bg-white text-purple-600 transition-colors hover:bg-purple-50">
+                            <i class="fas fa-bolt mr-2"></i>Adaptive Quiz
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Filter Section -->
             <div class="bg-white rounded-lg shadow-md p-6 mb-6">
                 <div class="grid md:grid-cols-3 gap-4">
@@ -178,7 +195,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block font-semibold mb-2">Difficulty:</label>
+                        <label class="block font-semibold mb-2" id="difficultyLabel">Difficulty:</label>
                         <select id="filterDifficulty" onchange="loadQuestionsByFilter()" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
                             <option value="">All Levels</option>
                             <option value="beginner">Beginner</option>
@@ -202,10 +219,10 @@
                         </span>
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="findInvalidOptions()" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600" title="Find questions without 4 distinct options">
+                        <button onclick="findInvalidOptions()" id="btnFindInvalid" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600" title="Find questions without 4 distinct options">
                             <i class="fas fa-exclamation-triangle mr-2"></i>Find Invalid Options
                         </button>
-                        <button onclick="findDuplicateQuestions()" class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600">
+                        <button onclick="findDuplicateQuestions()" id="btnFindDuplicates" class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600">
                             <i class="fas fa-copy mr-2"></i>Find Duplicates
                         </button>
                         <button onclick="loadQuestionsByFilter()" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700">
@@ -472,6 +489,90 @@
             <div id="editHistory" class="mt-6"></div>
         </div>
     </div>
+    </div>
+
+    <!-- Adaptive Question Edit Modal -->
+    <div id="adaptiveEditQuestionModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 overflow-y-auto">
+        <div class="min-h-screen px-4 py-8 flex items-start justify-center">
+            <div class="bg-white rounded-lg p-8 max-w-4xl w-full mx-4 my-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">
+                        <i class="fas fa-bolt text-purple-600 mr-2"></i>Edit Adaptive Question
+                    </h2>
+                    <button onclick="hideAdaptiveEditModal()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
+                
+                <!-- Flags for this question -->
+                <div id="adaptiveEditQuestionFlags" class="mb-4"></div>
+                
+                <!-- Question Info -->
+                <div class="bg-purple-50 rounded-lg p-4 mb-4">
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div><strong>Topic:</strong> <span id="adaptiveEditTopic"></span></div>
+                        <div><strong>Level:</strong> <span id="adaptiveEditLevel"></span></div>
+                    </div>
+                </div>
+                
+                <!-- SVG Preview -->
+                <div id="adaptiveEditSvgPreview" class="bg-gray-50 p-4 rounded-lg mb-4 text-center" style="display: none;"></div>
+                
+                <!-- Edit Form -->
+                <form id="adaptiveEditQuestionForm" onsubmit="event.preventDefault(); saveAdaptiveQuestion();" class="space-y-4">
+                    <input type="hidden" id="adaptiveEditQuestionId">
+                    
+                    <div>
+                        <label class="block font-semibold mb-2">Question Text:</label>
+                        <textarea id="adaptiveEditQuestionText" rows="3" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"></textarea>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block font-semibold mb-2">Option A:</label>
+                            <input type="text" id="adaptiveEditOptionA" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        </div>
+                        <div>
+                            <label class="block font-semibold mb-2">Option B:</label>
+                            <input type="text" id="adaptiveEditOptionB" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        </div>
+                        <div>
+                            <label class="block font-semibold mb-2">Option C:</label>
+                            <input type="text" id="adaptiveEditOptionC" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        </div>
+                        <div>
+                            <label class="block font-semibold mb-2">Option D:</label>
+                            <input type="text" id="adaptiveEditOptionD" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block font-semibold mb-2">Correct Answer:</label>
+                        <select id="adaptiveEditCorrectAnswer" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block font-semibold mb-2">Admin Notes:</label>
+                        <textarea id="adaptiveEditNotes" rows="2" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                  placeholder="Notes about this edit..."></textarea>
+                    </div>
+                    
+                    <div class="flex gap-4">
+                        <button type="submit" class="flex-1 bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 font-semibold">
+                            <i class="fas fa-save mr-2"></i>Save Changes
+                        </button>
+                        <button type="button" onclick="hideAdaptiveEditModal()" class="flex-1 bg-gray-300 text-gray-800 py-3 rounded-lg hover:bg-gray-400 font-semibold">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 
         <!-- User Analytics Tab (Main) -->
@@ -4347,15 +4448,132 @@ function updateRestrictedTeachersCount() {
         // ==================== MANAGE QUESTIONS FUNCTIONS ====================
 
         let allQuestionsData = [];
+        let currentQuestionType = 'legacy'; // 'legacy' or 'adaptive'
+
+        // Switch between legacy and adaptive questions
+        async function switchQuestionType(type) {
+            currentQuestionType = type;
+            
+            // Update toggle button styles
+            const btnLegacy = document.getElementById('btnLegacyQuestions');
+            const btnAdaptive = document.getElementById('btnAdaptiveQuestions');
+            
+            if (type === 'legacy') {
+                btnLegacy.classList.add('bg-purple-600', 'text-white');
+                btnLegacy.classList.remove('bg-white', 'text-purple-600');
+                btnAdaptive.classList.remove('bg-purple-600', 'text-white');
+                btnAdaptive.classList.add('bg-white', 'text-purple-600');
+                
+                // Show legacy-specific buttons
+                document.getElementById('btnFindInvalid').style.display = '';
+                document.getElementById('btnFindDuplicates').style.display = '';
+                document.getElementById('difficultyLabel').textContent = 'Difficulty:';
+                
+                // Reset difficulty options for legacy
+                const diffSelect = document.getElementById('filterDifficulty');
+                diffSelect.innerHTML = `
+                    <option value="">All Levels</option>
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                `;
+                
+                // Load legacy topics
+                await loadLegacyTopics();
+            } else {
+                btnAdaptive.classList.add('bg-purple-600', 'text-white');
+                btnAdaptive.classList.remove('bg-white', 'text-purple-600');
+                btnLegacy.classList.remove('bg-purple-600', 'text-white');
+                btnLegacy.classList.add('bg-white', 'text-purple-600');
+                
+                // Hide legacy-specific buttons (not relevant for adaptive)
+                document.getElementById('btnFindInvalid').style.display = 'none';
+                document.getElementById('btnFindDuplicates').style.display = 'none';
+                document.getElementById('difficultyLabel').textContent = 'Level Band:';
+                
+                // Update difficulty options for adaptive (level bands)
+                const diffSelect = document.getElementById('filterDifficulty');
+                diffSelect.innerHTML = `
+                    <option value="">All Level Bands</option>
+                    <option value="beginner">Beginner (1-3)</option>
+                    <option value="intermediate">Intermediate (4-6)</option>
+                    <option value="advanced">Advanced (7-9)</option>
+                    <option value="mastery">Mastery (10)</option>
+                `;
+                
+                // Load adaptive topics
+                await loadAdaptiveTopics();
+            }
+            
+            // Clear search and reload questions
+            document.getElementById('searchQuestion').value = '';
+            document.getElementById('filterTopic').value = '';
+            document.getElementById('filterDifficulty').value = '';
+            await loadQuestionsByFilter();
+        }
+
+        // Load legacy topics into dropdown
+        async function loadLegacyTopics() {
+            try {
+                const response = await fetch('/api/topics');
+                const topics = await response.json();
+                
+                const select = document.getElementById('filterTopic');
+                select.innerHTML = '<option value="">All Topics</option>';
+                
+                topics.forEach(t => {
+                    const option = document.createElement('option');
+                    option.value = t.id;
+                    option.textContent = `${t.display_name} (${t.count || 0})`;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading legacy topics:', error);
+            }
+        }
+
+        // Load adaptive topics into dropdown
+        async function loadAdaptiveTopics() {
+            try {
+                const response = await fetch('/api/admin/adaptive-topics-list');
+                const topics = await response.json();
+                
+                const select = document.getElementById('filterTopic');
+                select.innerHTML = '<option value="">All Topics</option>';
+                
+                const topicNames = {
+                    'fractions': 'Fractions',
+                    'percentages': 'Percentages',
+                    'probability': 'Probability',
+                    'sets': 'Sets & Venn Diagrams'
+                };
+                
+                topics.forEach(t => {
+                    const option = document.createElement('option');
+                    option.value = t.topic;
+                    option.textContent = `${topicNames[t.topic] || t.topic} (${t.count})`;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading adaptive topics:', error);
+            }
+        }
 
         async function loadQuestionsByFilter() {
             const topic = document.getElementById('filterTopic').value;
             const difficulty = document.getElementById('filterDifficulty').value;
 
             try {
-                let url = '/api/admin/all-questions?';
-                if (topic) url += `topic=${topic}&`;
-                if (difficulty) url += `difficulty=${difficulty}`;
+                let url;
+                if (currentQuestionType === 'adaptive') {
+                    url = '/api/admin/adaptive-questions?';
+                    if (topic) url += `topic=${topic}&`;
+                    if (difficulty) url += `level_band=${difficulty}`;
+                } else {
+                    url = '/api/admin/all-questions?';
+                    if (topic) url += `topic=${topic}&`;
+                    if (difficulty) url += `difficulty=${difficulty}`;
+                }
 
                 const response = await fetch(url);
                 allQuestionsData = await response.json();
@@ -4402,19 +4620,25 @@ function updateRestrictedTeachersCount() {
                 return;
             }
 
-            // Show bulk actions bar when questions are displayed
-            bulkBar.classList.remove('hidden');
-            clearSelection(); // Reset selection state
+            // Show bulk actions bar when questions are displayed (only for legacy)
+            if (currentQuestionType === 'legacy') {
+                bulkBar.classList.remove('hidden');
+                clearSelection();
+            } else {
+                bulkBar.classList.add('hidden');
+            }
 
             container.innerHTML = questions.map((q, index) => {
+                const isAdaptive = q.is_adaptive || currentQuestionType === 'adaptive';
+                
                 const difficultyColors = {
                     'beginner': 'bg-green-100 text-green-800',
                     'intermediate': 'bg-yellow-100 text-yellow-800',
-                    'advanced': 'bg-red-100 text-red-800'
+                    'advanced': 'bg-red-100 text-red-800',
+                    'mastery': 'bg-purple-100 text-purple-800'
                 };
 
                 const topicIcons = {
-                    // Number strand
                     'arithmetic': 'fa-calculator',
                     'fractions': 'fa-divide',
                     'decimals': 'fa-percent',
@@ -4422,7 +4646,6 @@ function updateRestrictedTeachersCount() {
                     'multiplication_division': 'fa-times',
                     'number_systems': 'fa-hashtag',
                     'bodmas': 'fa-list-ol',
-                    // Algebra and Functions strand
                     'patterns': 'fa-th',
                     'introductory_algebra': 'fa-superscript',
                     'functions': 'fa-chart-line',
@@ -4431,81 +4654,227 @@ function updateRestrictedTeachersCount() {
                     'complex_numbers_intro': 'fa-infinity',
                     'complex_numbers_expanded': 'fa-infinity',
                     'complex_numbers': 'fa-infinity',
-                    // Statistics and Probability strand
                     'descriptive_statistics': 'fa-chart-bar',
                     'probability': 'fa-dice',
-                    // Geometry and Trigonometry strand
                     'geometry': 'fa-shapes',
                     'trigonometry': 'fa-drafting-compass',
                     'algebra': 'fa-function'
                 };
 
-                // Check for image and hint
-                const hasImage = q.image_url || q.has_image;
+                // Handle adaptive vs legacy differences
+                const difficulty = isAdaptive ? (q.level_band || q.difficulty || 'beginner') : q.difficulty;
+                const hasImage = isAdaptive ? q.has_svg : (q.image_url || q.has_image);
                 const hasHint = q.hint_text || q.has_hint;
 
-                return `
-                    <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow question-card" data-question-id="${q.id}">
-                        <div class="flex justify-between items-start mb-4">
-                            <div class="flex items-start gap-3 flex-1">
-                                <label class="flex items-center cursor-pointer mt-1">
-                                    <input type="checkbox" class="question-checkbox w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500" 
-                                           data-question-id="${q.id}" onchange="updateSelectionCount()">
-                                </label>
-                                <div class="flex-1">
-                                    <div class="flex items-center gap-2 mb-2 flex-wrap">
-                                        <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">
-                                            <i class="fas ${topicIcons[q.topic] || 'fa-book'} mr-1"></i>${q.topic.charAt(0).toUpperCase() + q.topic.slice(1)}
-                                        </span>
-                                        <span class="${difficultyColors[q.difficulty]} px-3 py-1 rounded-full text-sm font-semibold">
-                                            ${q.difficulty.charAt(0).toUpperCase() + q.difficulty.slice(1)}
-                                        </span>
-                                        <span class="text-gray-500 text-sm">ID: ${q.id}</span>
-                                        ${hasImage ? '<span class="bg-blue-50 text-blue-600 px-2 py-1 rounded text-xs" title="Has image"><i class="fas fa-image"></i></span>' : ''}
-                                        ${hasHint ? '<span class="bg-yellow-50 text-yellow-600 px-2 py-1 rounded text-xs" title="Has hint"><i class="fas fa-lightbulb"></i></span>' : ''}
+                if (isAdaptive) {
+                    // Adaptive question card
+                    return `
+                        <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow question-card border-l-4 border-purple-500" data-question-id="${q.id}">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="flex items-start gap-3 flex-1">
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2 mb-2 flex-wrap">
+                                            <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-semibold">
+                                                <i class="fas fa-bolt mr-1"></i>ADAPTIVE
+                                            </span>
+                                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">
+                                                <i class="fas ${topicIcons[q.topic] || 'fa-book'} mr-1"></i>${q.topic}
+                                            </span>
+                                            <span class="${difficultyColors[difficulty] || 'bg-gray-100 text-gray-800'} px-3 py-1 rounded-full text-sm font-semibold">
+                                                ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+                                            </span>
+                                            <span class="bg-indigo-100 text-indigo-800 px-2 py-1 rounded text-xs">
+                                                Level ${q.level || '?'}
+                                            </span>
+                                            <span class="text-gray-500 text-sm">ID: ${q.id}</span>
+                                            ${q.has_svg ? '<span class="bg-blue-50 text-blue-600 px-2 py-1 rounded text-xs" title="Has SVG visual"><i class="fas fa-image"></i> SVG</span>' : ''}
+                                        </div>
                                     </div>
                                 </div>
+                                <button onclick="openAdaptiveQuestionEditor(${q.id})" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
+                                    <i class="fas fa-edit mr-2"></i>Edit
+                                </button>
                             </div>
-                            <button onclick="openQuestionEditor(${q.id})" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
-                                <i class="fas fa-edit mr-2"></i>Edit
-                            </button>
+
+                            ${q.has_svg && q.image_svg ? `<div class="mb-4 text-center bg-gray-50 p-4 rounded-lg">${q.image_svg}</div>` : ''}
+
+                            <div class="mb-4">
+                                <div class="font-semibold text-gray-700 mb-2">Question:</div>
+                                <div class="text-gray-800 bg-gray-50 p-3 rounded-lg">${q.question || q.question_text}</div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3 mb-4">
+                                ${q.options.map((opt, i) => `
+                                    <div class="flex items-center gap-2 p-2 rounded ${i === q.correct ? 'bg-green-50 border-2 border-green-500' : 'bg-gray-50'}">
+                                        <span class="font-semibold ${i === q.correct ? 'text-green-700' : 'text-gray-600'}">
+                                            ${String.fromCharCode(65 + i)})
+                                        </span>
+                                        <span class="${i === q.correct ? 'text-green-700 font-semibold' : 'text-gray-700'}">
+                                            ${opt}
+                                        </span>
+                                        ${i === q.correct ? '<i class="fas fa-check text-green-600 ml-auto"></i>' : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
                         </div>
-
-                        ${hasImage ? `<div class="mb-4 ml-8"><img src="${q.image_url}" alt="Question image" class="max-h-32 rounded-lg border"></div>` : ''}
-
-                        <div class="mb-4 ml-8">
-                            <div class="font-semibold text-gray-700 mb-2">Question:</div>
-                            <div class="text-gray-800 bg-gray-50 p-3 rounded-lg">${q.question}</div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-3 mb-4 ml-8">
-                            ${q.options.map((opt, i) => `
-                                <div class="flex items-center gap-2 p-2 rounded ${i === q.correct ? 'bg-green-50 border-2 border-green-500' : 'bg-gray-50'}">
-                                    <span class="font-semibold ${i === q.correct ? 'text-green-700' : 'text-gray-600'}">
-                                        ${String.fromCharCode(65 + i)})
-                                    </span>
-                                    <span class="${i === q.correct ? 'text-green-700 font-semibold' : 'text-gray-700'}">
-                                        ${opt}
-                                    </span>
-                                    ${i === q.correct ? '<i class="fas fa-check text-green-600 ml-auto"></i>' : ''}
+                    `;
+                } else {
+                    // Legacy question card (original code)
+                    return `
+                        <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow question-card" data-question-id="${q.id}">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="flex items-start gap-3 flex-1">
+                                    <label class="flex items-center cursor-pointer mt-1">
+                                        <input type="checkbox" class="question-checkbox w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500" 
+                                               data-question-id="${q.id}" onchange="updateSelectionCount()">
+                                    </label>
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2 mb-2 flex-wrap">
+                                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">
+                                                <i class="fas ${topicIcons[q.topic] || 'fa-book'} mr-1"></i>${q.topic.charAt(0).toUpperCase() + q.topic.slice(1)}
+                                            </span>
+                                            <span class="${difficultyColors[q.difficulty]} px-3 py-1 rounded-full text-sm font-semibold">
+                                                ${q.difficulty.charAt(0).toUpperCase() + q.difficulty.slice(1)}
+                                            </span>
+                                            <span class="text-gray-500 text-sm">ID: ${q.id}</span>
+                                            ${hasImage ? '<span class="bg-blue-50 text-blue-600 px-2 py-1 rounded text-xs" title="Has image"><i class="fas fa-image"></i></span>' : ''}
+                                            ${hasHint ? '<span class="bg-yellow-50 text-yellow-600 px-2 py-1 rounded text-xs" title="Has hint"><i class="fas fa-lightbulb"></i></span>' : ''}
+                                        </div>
+                                    </div>
                                 </div>
-                            `).join('')}
-                        </div>
+                                <button onclick="openQuestionEditor(${q.id})" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
+                                    <i class="fas fa-edit mr-2"></i>Edit
+                                </button>
+                            </div>
 
-                        <div class="bg-blue-50 p-3 rounded-lg ml-8">
-                            <div class="font-semibold text-blue-900 text-sm mb-1">Explanation:</div>
-                            <div class="text-blue-800 text-sm">${q.explanation}</div>
+                            ${hasImage ? `<div class="mb-4 ml-8"><img src="${q.image_url}" alt="Question image" class="max-h-32 rounded-lg border"></div>` : ''}
+
+                            <div class="mb-4 ml-8">
+                                <div class="font-semibold text-gray-700 mb-2">Question:</div>
+                                <div class="text-gray-800 bg-gray-50 p-3 rounded-lg">${q.question}</div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3 mb-4 ml-8">
+                                ${q.options.map((opt, i) => `
+                                    <div class="flex items-center gap-2 p-2 rounded ${i === q.correct ? 'bg-green-50 border-2 border-green-500' : 'bg-gray-50'}">
+                                        <span class="font-semibold ${i === q.correct ? 'text-green-700' : 'text-gray-600'}">
+                                            ${String.fromCharCode(65 + i)})
+                                        </span>
+                                        <span class="${i === q.correct ? 'text-green-700 font-semibold' : 'text-gray-700'}">
+                                            ${opt}
+                                        </span>
+                                        ${i === q.correct ? '<i class="fas fa-check text-green-600 ml-auto"></i>' : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+
+                            <div class="bg-blue-50 p-3 rounded-lg ml-8">
+                                <div class="font-semibold text-blue-900 text-sm mb-1">Explanation:</div>
+                                <div class="text-blue-800 text-sm">${q.explanation}</div>
+                            </div>
+                            
+                            ${hasHint ? `
+                            <div class="mt-3 bg-yellow-50 p-3 rounded-lg ml-8">
+                                <div class="font-semibold text-yellow-900 text-sm mb-1"><i class="fas fa-lightbulb mr-1"></i>Hint (-${q.hint_penalty || 50}%):</div>
+                                <div class="text-yellow-800 text-sm">${q.hint_text}</div>
+                            </div>
+                            ` : ''}
                         </div>
-                        
-                        ${hasHint ? `
-                        <div class="mt-3 bg-yellow-50 p-3 rounded-lg ml-8">
-                            <div class="font-semibold text-yellow-900 text-sm mb-1"><i class="fas fa-lightbulb mr-1"></i>Hint (-${q.hint_penalty || 50}%):</div>
-                            <div class="text-yellow-800 text-sm">${q.hint_text}</div>
-                        </div>
-                        ` : ''}
-                    </div>
-                `;
+                    `;
+                }
             }).join('');
+        }
+
+        // Open adaptive question editor
+        async function openAdaptiveQuestionEditor(questionId) {
+            try {
+                const response = await fetch(`/api/admin/adaptive-question/${questionId}`);
+                const data = await response.json();
+                const q = data.question;
+
+                // Populate adaptive edit modal
+                document.getElementById('adaptiveEditQuestionId').value = q.id;
+                document.getElementById('adaptiveEditQuestionText').value = q.question_text || '';
+                document.getElementById('adaptiveEditOptionA').value = q.option_a || '';
+                document.getElementById('adaptiveEditOptionB').value = q.option_b || '';
+                document.getElementById('adaptiveEditOptionC').value = q.option_c || '';
+                document.getElementById('adaptiveEditOptionD').value = q.option_d || '';
+                document.getElementById('adaptiveEditCorrectAnswer').value = q.correct_answer || 'A';
+                document.getElementById('adaptiveEditTopic').textContent = q.topic || 'Unknown';
+                document.getElementById('adaptiveEditLevel').textContent = `Level ${q.level || '?'} (${q.level_band || 'Unknown'})`;
+                document.getElementById('adaptiveEditNotes').value = '';
+                
+                // Show SVG if present
+                const svgContainer = document.getElementById('adaptiveEditSvgPreview');
+                if (q.image_svg) {
+                    svgContainer.innerHTML = q.image_svg;
+                    svgContainer.style.display = 'block';
+                } else {
+                    svgContainer.style.display = 'none';
+                }
+
+                // Show any pending flags
+                const flagsHtml = data.flags && data.flags.length > 0 ? `
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                        <div class="font-semibold text-red-800 mb-2">
+                            <i class="fas fa-flag mr-2"></i>${data.flags.filter(f => f.status === 'pending').length} Pending Flag(s):
+                        </div>
+                        ${data.flags.filter(f => f.status === 'pending').map(f => `
+                            <div class="text-sm text-red-700 mb-1">
+                                <span class="font-semibold">${f.flag_type}:</span> ${f.description}
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : '';
+                document.getElementById('adaptiveEditQuestionFlags').innerHTML = flagsHtml;
+
+                // Show modal
+                document.getElementById('adaptiveEditQuestionModal').classList.remove('hidden');
+                document.getElementById('adaptiveEditQuestionModal').classList.add('flex');
+            } catch (error) {
+                console.error('Error loading adaptive question:', error);
+                alert('Error loading question details');
+            }
+        }
+
+        function hideAdaptiveEditModal() {
+            document.getElementById('adaptiveEditQuestionModal').classList.add('hidden');
+            document.getElementById('adaptiveEditQuestionModal').classList.remove('flex');
+        }
+
+        // Save adaptive question edits
+        async function saveAdaptiveQuestion() {
+            const questionId = document.getElementById('adaptiveEditQuestionId').value;
+            
+            const data = {
+                question_text: document.getElementById('adaptiveEditQuestionText').value,
+                option_a: document.getElementById('adaptiveEditOptionA').value,
+                option_b: document.getElementById('adaptiveEditOptionB').value,
+                option_c: document.getElementById('adaptiveEditOptionC').value,
+                option_d: document.getElementById('adaptiveEditOptionD').value,
+                correct_answer: document.getElementById('adaptiveEditCorrectAnswer').value,
+                admin_notes: document.getElementById('adaptiveEditNotes').value
+            };
+            
+            try {
+                const response = await fetch(`/api/admin/adaptive-question/${questionId}`, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    alert('Adaptive question updated successfully!');
+                    hideAdaptiveEditModal();
+                    loadQuestionsByFilter();
+                } else {
+                    const error = await response.json();
+                    alert(error.error || 'Failed to update question');
+                }
+            } catch (error) {
+                console.error('Error saving adaptive question:', error);
+                alert('Error saving question');
+            }
         }
 
         async function openQuestionEditor(questionId) {

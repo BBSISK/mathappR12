@@ -28,7 +28,10 @@ let whoAmIState = {
     revealedTiles: new Set(),
     guessedNames: new Set(),
     correctGuess: false,
-    bonusPoints: 0
+    bonusPoints: 0,
+    containerId: 'who-am-i-container',  // Default container ID
+    topic: null,             // Store for next image loading
+    difficulty: null         // Store for next image loading
 };
 
 // ========================================
@@ -40,10 +43,11 @@ let whoAmIState = {
  * @param {string} topic - The quiz topic (e.g., 'descriptive_statistics')
  * @param {string} difficulty - The difficulty level (e.g., 'beginner')
  * @param {number} quizAttemptId - The numeric quiz attempt ID
+ * @param {string} containerId - Optional custom container ID (default: 'who-am-i-container')
  */
-async function initializeWhoAmI(topic, difficulty, quizAttemptId) {
+async function initializeWhoAmI(topic, difficulty, quizAttemptId, containerId = 'who-am-i-container') {
     console.log('🎯 Initializing Who Am I for quiz attempt:', quizAttemptId);
-    console.log('   Topic:', topic, '| Difficulty:', difficulty);
+    console.log('   Topic:', topic, '| Difficulty:', difficulty, '| Container:', containerId);
     
     // Reset state
     whoAmIState = {
@@ -55,7 +59,10 @@ async function initializeWhoAmI(topic, difficulty, quizAttemptId) {
         revealedTiles: new Set(),
         guessedNames: new Set(),
         correctGuess: false,
-        bonusPoints: 0
+        bonusPoints: 0,
+        containerId: containerId,
+        topic: topic,           // Store for next image loading
+        difficulty: difficulty  // Store for next image loading
     };
     
     try {
@@ -95,7 +102,7 @@ async function initializeWhoAmI(topic, difficulty, quizAttemptId) {
         createRevealGrid();
         
         // Show the container
-        const container = document.getElementById('who-am-i-container');
+        const container = document.getElementById(whoAmIState.containerId);
         if (container) {
             container.style.display = 'block';
         }
@@ -109,7 +116,7 @@ async function initializeWhoAmI(topic, difficulty, quizAttemptId) {
  * Create the 5×5 reveal grid with hint display
  */
 function createRevealGrid() {
-    const container = document.getElementById('who-am-i-container');
+    const container = document.getElementById(whoAmIState.containerId);
     if (!container) return;
     
     const imageUrl = whoAmIState.imageUrl;
@@ -204,8 +211,20 @@ function generateTileHTML() {
  * Called when student answers a question correctly
  */
 function onCorrectAnswer() {
-    if (!whoAmIState.imageUrl || whoAmIState.correctGuess) {
-        return; // No image or already guessed correctly
+    console.log('🎯 onCorrectAnswer called');
+    console.log('   - imageUrl:', whoAmIState.imageUrl ? 'SET' : 'NULL');
+    console.log('   - correctGuess:', whoAmIState.correctGuess);
+    console.log('   - containerId:', whoAmIState.containerId);
+    console.log('   - revealedTiles:', whoAmIState.revealedTiles.size);
+    
+    if (!whoAmIState.imageUrl) {
+        console.log('⚠️ No image URL - skipping tile reveal');
+        return;
+    }
+    
+    if (whoAmIState.correctGuess) {
+        console.log('⚠️ Already guessed correctly - skipping tile reveal');
+        return;
     }
     
     // Reveal a random unrevealed tile
@@ -224,6 +243,8 @@ function revealRandomTile() {
         }
     }
     
+    console.log(`🎲 Unrevealed tiles remaining: ${unrevealedTiles.length}`);
+    
     if (unrevealedTiles.length === 0) {
         console.log('🎉 All tiles revealed!');
         return;
@@ -232,6 +253,8 @@ function revealRandomTile() {
     // Pick a random tile
     const randomIndex = Math.floor(Math.random() * unrevealedTiles.length);
     const tileNumber = unrevealedTiles[randomIndex];
+    
+    console.log(`🎯 Revealing tile ${tileNumber}`);
     
     // Reveal it
     revealTile(tileNumber);
@@ -378,7 +401,7 @@ async function submitGuess() {
     whoAmIState.guessedNames.add(normalizedGuess);
     
     try {
-        // Send guess to server
+        // Send guess to server - include topic/difficulty for adaptive quiz next image loading
         const response = await fetch('/api/who-am-i/guess', {
             method: 'POST',
             headers: {
@@ -386,7 +409,9 @@ async function submitGuess() {
             },
             body: JSON.stringify({
                 session_id: whoAmIState.sessionId,
-                guess: guess
+                guess: guess,
+                topic: whoAmIState.topic,
+                difficulty: whoAmIState.difficulty
             })
         });
         
@@ -499,6 +524,8 @@ function getWhoAmIBonusPoints() {
  * Reset state for a new quiz
  */
 function resetWhoAmI() {
+    const currentContainerId = whoAmIState.containerId || 'who-am-i-container';
+    
     whoAmIState = {
         quizAttemptId: null,
         sessionId: null,
@@ -508,10 +535,11 @@ function resetWhoAmI() {
         revealedTiles: new Set(),
         guessedNames: new Set(),
         correctGuess: false,
-        bonusPoints: 0
+        bonusPoints: 0,
+        containerId: currentContainerId
     };
     
-    const container = document.getElementById('who-am-i-container');
+    const container = document.getElementById(currentContainerId);
     if (container) {
         container.style.display = 'none';
         container.innerHTML = '';
@@ -545,9 +573,9 @@ function loadNextImage(nextSessionData) {
     });
     
     // Find container
-    const container = document.getElementById('who-am-i-container');
+    const container = document.getElementById(whoAmIState.containerId);
     if (!container) {
-        console.error('❌ Could not find who-am-i-container!');
+        console.error('❌ Could not find container:', whoAmIState.containerId);
         return;
     }
     
@@ -598,4 +626,4 @@ function loadNextImage(nextSessionData) {
 // EXPORTS (for use in student_app.html)
 // ========================================
 
-console.log('✅ Who Am I system loaded (5×5 grid, no gaps, with hints)');
+console.log('✅ Who Am I system loaded (5×5 grid, no gaps, with hints, custom container support)');

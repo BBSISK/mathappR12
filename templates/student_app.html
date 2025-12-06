@@ -1,3 +1,4 @@
+<!-- Revision 2.33 - 2025-12-05 - Added Report Question feature to Adaptive Quiz BETA -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -624,6 +625,196 @@
         
         .quick-play-mini .sidebar-card-arrow {
             color: rgba(255,255,255,0.8);
+        }
+        
+
+        /* Smart Quiz Mini - Adaptive Learning */
+        .smart-quiz-mini {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .smart-quiz-mini:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+        }
+        
+        .smart-quiz-mini .sidebar-card-title {
+            color: white;
+            font-size: 16px;
+        }
+        
+        .smart-quiz-mini .sidebar-card-desc {
+            color: rgba(255,255,255,0.9);
+        }
+        
+        .smart-quiz-mini .sidebar-card-arrow {
+            color: rgba(255,255,255,0.8);
+        }
+        
+        .smart-quiz-mini.guest-disabled {
+            background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        .smart-quiz-mini.guest-disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* Adaptive Quiz Mini - 10-Level Progression */
+        .adaptive-quiz-mini {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .adaptive-quiz-mini:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.3);
+        }
+        
+        .adaptive-quiz-mini .sidebar-card-title {
+            color: white;
+            font-size: 16px;
+        }
+        
+        .adaptive-quiz-mini .sidebar-card-desc {
+            color: rgba(255,255,255,0.9);
+        }
+        
+        .adaptive-quiz-mini .sidebar-card-arrow {
+            color: rgba(255,255,255,0.8);
+        }
+        
+        .adaptive-quiz-mini.guest-disabled {
+            background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        .adaptive-quiz-mini.guest-disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* Adaptive Quiz Level Indicator */
+        .adaptive-level-indicator {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .adaptive-level-bar {
+            display: flex;
+            gap: 3px;
+            margin-left: 8px;
+        }
+        
+        .adaptive-level-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transition: all 0.3s;
+        }
+        
+        .adaptive-level-dot.active {
+            background: #fbbf24;
+            box-shadow: 0 0 6px rgba(251, 191, 36, 0.6);
+        }
+        
+        .adaptive-level-dot.completed {
+            background: #34d399;
+        }
+        
+        /* Level Up/Down Animation */
+        .level-change-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: white;
+            padding: 30px 50px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            z-index: 1000;
+            text-align: center;
+            animation: levelPopIn 0.5s ease forwards;
+        }
+        
+        .level-change-toast.level-up {
+            border: 4px solid #10b981;
+        }
+        
+        .level-change-toast.level-down {
+            border: 4px solid #f59e0b;
+        }
+        
+        @keyframes levelPopIn {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+        
+        @keyframes levelPopOut {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+        }
+        
+        /* Adaptive Topic Card in Modal */
+        .adaptive-topic-card {
+            padding: 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+        
+        .adaptive-topic-card:hover {
+            border-color: #8b5cf6;
+            background: #f5f3ff;
+        }
+        
+        .adaptive-topic-card.selected {
+            border-color: #8b5cf6;
+            background: #ede9fe;
+        }
+        
+        .adaptive-topic-card .topic-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        
+        .adaptive-topic-card .topic-name {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+        
+        .adaptive-topic-card .topic-questions {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        
+        .adaptive-topic-card .topic-level {
+            font-size: 11px;
+            color: #8b5cf6;
+            margin-top: 4px;
         }
         
         /* Weekly Challenge Mini */
@@ -1900,6 +2091,67 @@
             }
         }
         
+        /* Adaptive Quiz Who Am I: Smaller grid for side-by-side */
+        #adaptive-who-am-i-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            padding: 15px;
+        }
+        
+        #adaptive-who-am-i-container .who-am-i-wrapper {
+            max-width: 100%;
+        }
+        
+        #adaptive-who-am-i-container .who-am-i-header h3 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+        
+        #adaptive-who-am-i-container .who-am-i-header p {
+            font-size: 0.8rem;
+        }
+        
+        #adaptive-who-am-i-container .reveal-grid {
+            max-width: 280px;
+            min-height: 150px;
+        }
+        
+        #adaptive-who-am-i-container .reveal-tile span {
+            font-size: 11px;
+        }
+        
+        #adaptive-who-am-i-container .guess-button {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+        
+        #adaptive-who-am-i-container .who-am-i-progress {
+            font-size: 0.8rem;
+        }
+        
+        #adaptive-who-am-i-container .who-am-i-hint {
+            font-size: 0.85rem;
+            padding: 8px 12px;
+        }
+        
+        /* Mobile: Stack vertically */
+        @media (max-width: 768px) {
+            .adaptive-main-content {
+                flex-direction: column !important;
+            }
+            
+            #adaptive-who-am-i-container {
+                flex: 1 1 100% !important;
+                max-width: 100% !important;
+                order: 3 !important;
+                margin-top: 20px;
+            }
+            
+            #adaptive-who-am-i-container .reveal-grid {
+                max-width: 300px;
+            }
+        }
+        
         .number-line-container {
             margin: 20px 0;
             padding: 20px;
@@ -2961,6 +3213,12 @@
                             <div class="text-xs text-gray-500 mb-1">Recent:</div>
                             <div id="recent-badges" class="flex flex-wrap gap-1"></div>
                         </div>
+                        <!-- View All Badges Button -->
+                        <div style="margin-top: 12px; text-align: center;">
+                            <a href="/student/badges" style="display: inline-block; padding: 8px 16px; background: rgba(255,255,255,0.2); color: white; border-radius: 8px; font-size: 0.85rem; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                                🏅 View All Badges
+                            </a>
+                        </div>
                     </div>
                     
                     <!-- Quick Play Mini Card -->
@@ -2969,6 +3227,31 @@
                         <div class="sidebar-card-content">
                             <h4 class="sidebar-card-title">Quick Play</h4>
                             <p class="sidebar-card-desc">10 random questions</p>
+                        </div>
+                        <i class="fas fa-chevron-right sidebar-card-arrow"></i>
+                    </div>
+
+
+                    <!-- Smart Quiz Mini Card (Adaptive Learning) -->
+                    <div class="sidebar-card smart-quiz-mini {% if session.get('is_guest') and not session.get('guest_code') %}guest-disabled{% endif %}" 
+                         onclick="{% if session.get('is_guest') and not session.get('guest_code') %}showSmartQuizGuestMessage(){% else %}showSmartQuizModal(){% endif %}"
+                         title="{% if session.get('is_guest') and not session.get('guest_code') %}Get a guest code to unlock Smart Quiz!{% else %}AI-powered personalised quiz{% endif %}">
+                        <div class="sidebar-card-icon">🧠</div>
+                        <div class="sidebar-card-content">
+                            <h4 class="sidebar-card-title">Smart Quiz</h4>
+                            <p class="sidebar-card-desc">{% if session.get('is_guest') and not session.get('guest_code') %}Get guest code to unlock{% else %}Personalised for you{% endif %}</p>
+                        </div>
+                        <i class="fas fa-chevron-right sidebar-card-arrow"></i>
+                    </div>
+
+                    <!-- Adaptive Quiz Mini Card (10-Level Progression) -->
+                    <div class="sidebar-card adaptive-quiz-mini {% if session.get('is_guest') and not session.get('guest_code') %}guest-disabled{% endif %}" 
+                         onclick="{% if session.get('is_guest') and not session.get('guest_code') %}showAdaptiveQuizGuestMessage(){% else %}showAdaptiveQuizModal(){% endif %}"
+                         title="{% if session.get('is_guest') and not session.get('guest_code') %}Get a guest code to unlock Adaptive Quiz!{% else %}Level up through 10 difficulty stages{% endif %}">
+                        <div class="sidebar-card-icon">🎯</div>
+                        <div class="sidebar-card-content">
+                            <h4 class="sidebar-card-title">Adaptive Quiz</h4>
+                            <p class="sidebar-card-desc">{% if session.get('is_guest') and not session.get('guest_code') %}Get guest code to unlock{% else %}10 levels of progression{% endif %}</p>
                         </div>
                         <i class="fas fa-chevron-right sidebar-card-arrow"></i>
                     </div>
@@ -3548,6 +3831,186 @@
         function closeQuickPlayModal() {
             document.getElementById('quickPlayModal').classList.add('hidden');
             document.getElementById('quickPlayModal').classList.remove('flex');
+        }
+        
+
+        // === SMART QUIZ SYSTEM (Adaptive Learning) ===
+        let smartQuizMode = 'auto';  // auto, review, practice, challenge
+        let smartQuizData = null;
+        
+        function showSmartQuizGuestMessage() {
+            alert('🔒 Smart Quiz requires a Guest Code!\n\nSmart Quiz uses AI to personalise your learning based on your quiz history.\n\nClick "Return with Code" on the home page to get your personal guest code, or register for a full account!');
+        }
+        
+        function showSmartQuizModal() {
+            // First fetch the recommendation
+            fetchSmartQuizRecommendation('auto');
+            document.getElementById('smartQuizModal').classList.remove('hidden');
+            document.getElementById('smartQuizModal').classList.add('flex');
+        }
+        
+        function closeSmartQuizModal() {
+            document.getElementById('smartQuizModal').classList.add('hidden');
+            document.getElementById('smartQuizModal').classList.remove('flex');
+        }
+        
+        function setSmartQuizMode(mode) {
+            smartQuizMode = mode;
+            // Update button states
+            document.querySelectorAll('.smart-mode-btn').forEach(btn => {
+                if (btn.dataset.mode === mode) {
+                    btn.classList.add('border-green-400', 'bg-green-50');
+                    btn.classList.remove('border-gray-200');
+                } else {
+                    btn.classList.remove('border-green-400', 'bg-green-50');
+                    btn.classList.add('border-gray-200');
+                }
+            });
+            // Fetch new recommendation for this mode
+            fetchSmartQuizRecommendation(mode);
+        }
+        
+        async function fetchSmartQuizRecommendation(mode) {
+            const loadingEl = document.getElementById('smartQuizLoading');
+            const contentEl = document.getElementById('smartQuizContent');
+            const errorEl = document.getElementById('smartQuizError');
+            
+            loadingEl.classList.remove('hidden');
+            contentEl.classList.add('hidden');
+            errorEl.classList.add('hidden');
+            
+            try {
+                const response = await fetch('/api/adaptive/smart-quiz', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mode: mode })
+                });
+                
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.error || 'Failed to get recommendation');
+                }
+                
+                smartQuizData = await response.json();
+                
+                // Update the UI
+                document.getElementById('smartQuizTopic').textContent = formatTopicName(smartQuizData.topic);
+                document.getElementById('smartQuizDifficulty').textContent = capitalise(smartQuizData.difficulty);
+                document.getElementById('smartQuizReason').textContent = smartQuizData.reason || 'Recommended for you';
+                
+                // Set difficulty badge color
+                const diffBadge = document.getElementById('smartQuizDifficulty');
+                diffBadge.className = 'px-3 py-1 rounded-full text-sm font-medium';
+                if (smartQuizData.difficulty === 'beginner') {
+                    diffBadge.classList.add('bg-green-100', 'text-green-700');
+                } else if (smartQuizData.difficulty === 'intermediate') {
+                    diffBadge.classList.add('bg-yellow-100', 'text-yellow-700');
+                } else {
+                    diffBadge.classList.add('bg-red-100', 'text-red-700');
+                }
+                
+                // Show mastery if available
+                if (smartQuizData.mastery_level !== undefined) {
+                    document.getElementById('smartQuizMastery').textContent = 
+                        `Current mastery: ${Math.round(smartQuizData.mastery_level)}%`;
+                    document.getElementById('smartQuizMasteryContainer').classList.remove('hidden');
+                } else {
+                    document.getElementById('smartQuizMasteryContainer').classList.add('hidden');
+                }
+                
+                loadingEl.classList.add('hidden');
+                contentEl.classList.remove('hidden');
+                
+            } catch (error) {
+                console.error('Smart Quiz error:', error);
+                loadingEl.classList.add('hidden');
+                errorEl.textContent = error.message || 'Could not load recommendation';
+                errorEl.classList.remove('hidden');
+            }
+        }
+        
+        function formatTopicName(topic) {
+            if (!topic) return 'Unknown Topic';
+            return topic.split('_').map(word => 
+                word.charAt(0).toUpperCase() + word.slice(1)
+            ).join(' ');
+        }
+        
+        function capitalise(str) {
+            if (!str) return '';
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+        
+        async function startSmartQuiz() {
+            if (!smartQuizData || !smartQuizData.topic) {
+                alert('Please wait for the recommendation to load.');
+                return;
+            }
+            
+            closeSmartQuizModal();
+            
+            // Store the topic and difficulty
+            currentTopic = smartQuizData.topic;
+            currentDifficulty = smartQuizData.difficulty;
+            
+            // Show loading
+            document.getElementById('topicScreen').classList.add('hidden');
+            document.getElementById('loadingScreen').classList.remove('hidden');
+            
+            try {
+                // Fetch questions for the recommended topic/difficulty
+                const response = await fetch(`/api/questions/${currentTopic}/${currentDifficulty}`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load questions');
+                }
+                
+                questions = await response.json();
+                
+                if (questions.length === 0) {
+                    alert('No questions available for this topic. Try another!');
+                    document.getElementById('loadingScreen').classList.add('hidden');
+                    document.getElementById('topicScreen').classList.remove('hidden');
+                    return;
+                }
+                
+                // Shuffle and limit to quiz size
+                questions = questions.sort(() => Math.random() - 0.5).slice(0, 20);
+                
+                // Set up quiz state
+                currentQuestionIndex = 0;
+                score = 0;
+                answered = false;
+                startTime = Date.now();
+                isQuickPlayMode = false;
+                
+                // Reset tracking
+                consecutiveCorrect = 0;
+                maxConsecutiveCorrect = 0;
+                questionsAnsweredInQuiz = 0;
+                shownMilestones.clear();
+                totalMilestonePoints = 0;
+                currentStreak = 0;
+                hintUsedThisQuestion = false;
+                updateHotStreakDisplay(0);
+                
+                // Show quiz
+                document.getElementById('loadingScreen').classList.add('hidden');
+                document.getElementById('quizScreen').classList.remove('hidden');
+                document.body.classList.add('quiz-active');
+                
+                // Update header with Smart Quiz indicator
+                document.getElementById('compactTopicTitle').textContent = 
+                    '🧠 ' + formatTopicName(currentTopic);
+                
+                showQuestion();
+                
+            } catch (error) {
+                console.error('Smart Quiz start error:', error);
+                alert('Could not start Smart Quiz. Please try again.');
+                document.getElementById('loadingScreen').classList.add('hidden');
+                document.getElementById('topicScreen').classList.remove('hidden');
+            }
         }
         
         function setQuickPlayDifficulty(diff) {
@@ -4174,6 +4637,30 @@
                     'rotate': 'fa-rotate'
                 };
 
+                // Revision Slides - Thanks to Mr Notaro (Palmerstown CS)
+                const revisionSlides = {
+                    'Number': [
+                        { title: 'Financial Maths', url: 'https://palmerstowncs-my.sharepoint.com/:p:/g/personal/anthony_notaro_palmerstowncs_ie/Eatb7k0qPBVDn14s_J4LNsIBYKXcieOEpYWJeW2y-2imQA?e=4RG012' },
+                        { title: 'Sets & Venn Diagrams', url: 'https://palmerstowncs-my.sharepoint.com/:p:/g/personal/anthony_notaro_palmerstowncs_ie/Eap-N1PhTXRNpm4zPs1p1BUBcLnudS4KG2ywFQvnb-MxTw?e=Yxisb2' }
+                    ],
+                    'Algebra and Functions': [
+                        { title: 'Algebra 1', url: 'https://palmerstowncs-my.sharepoint.com/:p:/g/personal/anthony_notaro_palmerstowncs_ie/EaqmYVzyKoBOp1yUuyJHTUIBOU-_1hGeENx2MbsR_0yaBw?e=PSnwt5' },
+                        { title: 'Algebra 2', url: 'https://palmerstowncs-my.sharepoint.com/:p:/g/personal/anthony_notaro_palmerstowncs_ie/EQwc1csFFa9PnqstEeP5dsEBE5JF5Z82Br92PZoNWqYaLg?e=VOYikd' },
+                        { title: 'Patterns & Sequences', url: 'https://palmerstowncs-my.sharepoint.com/:p:/g/personal/anthony_notaro_palmerstowncs_ie/ETvATshTfsFPsjtrG4h8hNUBeUXlPyThjrJEO0ES0PrnoA?e=vIUTJs' },
+                        { title: 'Functions', url: 'https://palmerstowncs-my.sharepoint.com/:p:/g/personal/anthony_notaro_palmerstowncs_ie/EfL8_tLbb7JMh0-pmKQhrQEB8cmWIkgtm84UrXAEK3CFYw?e=c2TXMU' },
+                        { title: 'Area & Volume', url: 'https://palmerstowncs-my.sharepoint.com/:p:/g/personal/anthony_notaro_palmerstowncs_ie/EdnyJMpNvlJGvWE0vY4NEVMBEDyJcFmOmSPdSoj1Nb4OsA?e=RPGemu' }
+                    ],
+                    'Statistics and Probability': [
+                        { title: 'Probability', url: 'https://palmerstowncs-my.sharepoint.com/:p:/g/personal/anthony_notaro_palmerstowncs_ie/ESvWVFUaOPlCsx4V19UgVBABT_Xip2WnwHg3qo4GgwKQTw?e=QG7df9' },
+                        { title: 'Statistics', url: 'https://palmerstowncs-my.sharepoint.com/:p:/g/personal/anthony_notaro_palmerstowncs_ie/Ebe_0FMGUR1Gr7LxXGPMFHcBh1V4lIgvh_bXRyg0wudLnQ?e=p3bW5i' }
+                    ],
+                    'Geometry and Trigonometry': [
+                        { title: 'Coordinate Geometry', url: 'https://palmerstowncs-my.sharepoint.com/:p:/g/personal/anthony_notaro_palmerstowncs_ie/EfjWpSzzfkxDudQNA2qGo-4BP9qeA0LvpgLhdupk56vf3w?e=ENzJCo' },
+                        { title: 'Geometry', url: 'https://palmerstowncs-my.sharepoint.com/:p:/g/personal/anthony_notaro_palmerstowncs_ie/EVE-3tnh5LhIhDwkRsgoNc4B-euRP31_rCsNm4WZzpXRMg?e=JisGOD' },
+                        { title: 'Trigonometry', url: 'https://palmerstowncs-my.sharepoint.com/:p:/g/personal/anthony_notaro_palmerstowncs_ie/ERt6YHrKvvtMkIrFu8mQjXUBYnD3aZoMcSAUVxEmwixKRA?e=IH0z4J' }
+                    ]
+                };
+
                 // Clear and build strands dynamically
                 const container = document.getElementById('learningPathsContainer');
                 container.innerHTML = '';
@@ -4262,6 +4749,113 @@
                     });
 
                     strandCard.appendChild(flow);
+                    
+                    // Add Revision Slides section if available for this strand
+                    const strandRevision = revisionSlides[strandName];
+                    if (strandRevision && strandRevision.length > 0 && !isSeniorCycle) {
+                        // Divider
+                        const divider = document.createElement('div');
+                        divider.className = 'revision-divider';
+                        divider.innerHTML = `
+                            <div style="border-top: 2px dashed #d1d5db; margin: 20px 0 15px 0;"></div>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                                <span style="font-size: 1.25rem;">📖</span>
+                                <span style="font-weight: 600; color: #374151;">Revision Slides (Thanks to Mr Notaro) - Click to view in a separate window</span>
+                            </div>
+                        `;
+                        strandCard.appendChild(divider);
+                        
+                        // Revision buttons container
+                        const revisionContainer = document.createElement('div');
+                        revisionContainer.style.cssText = 'display: flex; flex-wrap: wrap; gap: 10px; padding: 0 10px 10px 10px;';
+                        
+                        let buttonsHtml = '';
+                        strandRevision.forEach((slide, index) => {
+                            const escapedUrl = slide.url.replace(/'/g, "\\'");
+                            buttonsHtml += `
+                                <button type="button" 
+                                    onclick="event.stopPropagation(); window.open('${escapedUrl}', '_blank'); return false;"
+                                    style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1px solid #86efac; border-radius: 8px; color: #166534; font-size: 0.85rem; font-weight: 500; cursor: pointer; position: relative; z-index: 1000;"
+                                    onmouseover="this.style.background='linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)';"
+                                    onmouseout="this.style.background='linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)'; this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                                    <i class="fas fa-external-link-alt" style="font-size: 0.75rem;"></i> ${slide.title}
+                                </button>
+                            `;
+                        });
+                        revisionContainer.innerHTML = buttonsHtml;
+                        
+                        strandCard.appendChild(revisionContainer);
+                    }
+                    
+                    // Adaptive Questions BETA Section
+                    // Only show for registered users or guests with codes
+                    const canAccessAdaptive = {{ 'true' if not (session.get('is_guest') and not session.get('guest_code')) else 'false' }};
+                    
+                    const adaptiveTopics = {
+                        'Number': [
+                            { key: 'fractions', title: 'Fractions', icon: 'fa-pie-chart' },
+                            { key: 'percentages', title: 'Percentages', icon: 'fa-percent' }
+                        ],
+                        'Algebra and Functions': [],
+                        'Statistics and Probability': [
+                            { key: 'probability', title: 'Probability', icon: 'fa-dice' },
+                            { key: 'sets', title: 'Sets & Venn Diagrams', icon: 'fa-circle-nodes' }
+                        ],
+                        'Geometry and Trigonometry': []
+                    };
+                    
+                    const strandAdaptive = adaptiveTopics[strandName];
+                    if (strandAdaptive && strandAdaptive.length > 0 && !isSeniorCycle) {
+                        // Divider
+                        const adaptiveDivider = document.createElement('div');
+                        adaptiveDivider.className = 'adaptive-divider';
+                        adaptiveDivider.innerHTML = `
+                            <div style="border-top: 2px dashed #a78bfa; margin: 20px 0 15px 0;"></div>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                <span style="font-size: 1.25rem;">🧪</span>
+                                <span style="font-weight: 600; color: #5b21b6;">Adaptive Questions</span>
+                                <span style="background: linear-gradient(135deg, #8b5cf6, #a78bfa); color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 600;">BETA</span>
+                            </div>
+                            <p style="font-size: 0.8rem; color: #6b7280; margin-bottom: 12px;">
+                                ${canAccessAdaptive ? '10 levels of difficulty - progress at your own pace!' : '🔒 Get a guest code to unlock adaptive quizzes'}
+                            </p>
+                        `;
+                        strandCard.appendChild(adaptiveDivider);
+                        
+                        // Adaptive topic buttons container
+                        const adaptiveContainer = document.createElement('div');
+                        adaptiveContainer.style.cssText = 'display: flex; flex-wrap: wrap; gap: 10px; padding: 0 10px 10px 10px;';
+                        
+                        let adaptiveButtonsHtml = '';
+                        strandAdaptive.forEach((topic) => {
+                            if (canAccessAdaptive) {
+                                adaptiveButtonsHtml += `
+                                    <button type="button" 
+                                        onclick="event.stopPropagation(); startAdaptiveQuizBeta('${topic.key}', '${topic.title}'); return false;"
+                                        style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border: 1px solid #c4b5fd; border-radius: 8px; color: #5b21b6; font-size: 0.9rem; font-weight: 500; cursor: pointer; position: relative; z-index: 1000;"
+                                        onmouseover="this.style.background='linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 6px rgba(139, 92, 246, 0.2)';"
+                                        onmouseout="this.style.background='linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%)'; this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                                        <i class="fas ${topic.icon}" style="font-size: 0.85rem;"></i> 
+                                        ${topic.title}
+                                        <span style="background: #8b5cf6; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: 600;">10 LEVELS</span>
+                                    </button>
+                                `;
+                            } else {
+                                adaptiveButtonsHtml += `
+                                    <button type="button" disabled
+                                        style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; background: #f3f4f6; border: 1px solid #d1d5db; border-radius: 8px; color: #9ca3af; font-size: 0.9rem; font-weight: 500; cursor: not-allowed; position: relative; z-index: 1000;"
+                                        title="Get a guest code to unlock">
+                                        <i class="fas fa-lock" style="font-size: 0.85rem;"></i> 
+                                        ${topic.title}
+                                    </button>
+                                `;
+                            }
+                        });
+                        adaptiveContainer.innerHTML = adaptiveButtonsHtml;
+                        
+                        strandCard.appendChild(adaptiveContainer);
+                    }
+                    
                     container.appendChild(strandCard);
                 });
 
@@ -4470,6 +5064,866 @@
             document.getElementById('topicScreen').classList.add('hidden');
             document.getElementById('difficultyScreen').classList.remove('hidden');
         }
+
+        // ===== ADAPTIVE QUIZ SYSTEM (BETA) =====
+        // State tracking for adaptive quizzes
+        let adaptiveState = {
+            active: false,
+            topic: null,
+            topicTitle: null,
+            currentLevel: 1,
+            currentPoints: 0,
+            questionStartTime: null,
+            questionsAtLevel: 0,
+            shownQuestionIds: [],  // Track shown questions to avoid repeats
+            // Gamification fields
+            sessionStreak: 0,           // Consecutive correct in session
+            sessionPointsEarned: 0,     // Total points earned this session
+            questionsAnswered: 0,       // Total questions this session
+            correctAnswers: 0,          // Correct answers this session
+            whoAmIEnabled: false,       // Whether Who Am I is active
+            whoAmIAttemptId: null       // Pseudo-attempt ID for Who Am I
+        };
+        
+        // Point values for adaptive quiz
+        const ADAPTIVE_POINTS = {
+            beginner: { base: 5, fast: 3 },      // Levels 1-3
+            intermediate: { base: 8, fast: 4 },  // Levels 4-6
+            advanced: { base: 12, fast: 6 },     // Levels 7-9
+            mastery: { base: 15, fast: 8 }       // Level 10
+        };
+        
+        // Progression thresholds
+        const ADAPTIVE_CONFIG = {
+            pointsToLevelUp: {
+                beginner: 6,      // Levels 1-3 (doubled from 3)
+                intermediate: 8,  // Levels 4-6 (doubled from 4)
+                advanced: 10      // Levels 7-9 (doubled from 5)
+            },
+            fastTimeThreshold: {
+                beginner: 15,     // Levels 1-3: under 15s = fast
+                intermediate: 20, // Levels 4-6: under 20s = fast
+                advanced: 25,     // Levels 7-9: under 25s = fast
+                mastery: 30       // Level 10: under 30s = fast
+            }
+        };
+        
+        function getAdaptiveBand(level) {
+            if (level <= 3) return 'beginner';
+            if (level <= 6) return 'intermediate';
+            if (level <= 9) return 'advanced';
+            return 'mastery';
+        }
+        
+        function getPointsRequired(level) {
+            const band = getAdaptiveBand(level);
+            return ADAPTIVE_CONFIG.pointsToLevelUp[band] || 5;
+        }
+        
+        function getFastThreshold(level) {
+            const band = getAdaptiveBand(level);
+            return ADAPTIVE_CONFIG.fastTimeThreshold[band] || 25;
+        }
+        
+        async function startAdaptiveQuizBeta(topicKey, topicTitle) {
+            try {
+                console.log('🧪 Starting Adaptive Quiz BETA:', topicKey, topicTitle);
+                
+                // Load saved progress from server
+                let savedLevel = 1;
+                let savedPoints = 0;
+                
+                try {
+                    const response = await fetch(`/api/adaptive/progress/${topicKey}`);
+                    if (response.ok) {
+                        const progress = await response.json();
+                        savedLevel = progress.current_level || 1;
+                        savedPoints = progress.current_points || 0;
+                        console.log('📊 Loaded saved progress:', progress);
+                    }
+                } catch (error) {
+                    console.log('Could not load progress, starting fresh:', error);
+                }
+                
+                // Initialize adaptive state
+                adaptiveState = {
+                    active: true,
+                    topic: topicKey,
+                    topicTitle: topicTitle,
+                    currentLevel: savedLevel,
+                    currentPoints: savedPoints,
+                    questionStartTime: null,
+                    questionsAtLevel: 0,
+                    shownQuestionIds: [],  // Reset shown questions for new session
+                    // Gamification - reset for new session
+                    sessionStreak: 0,
+                    sessionPointsEarned: 0,
+                    questionsAnswered: 0,
+                    correctAnswers: 0,
+                    whoAmIEnabled: false,
+                    whoAmIAttemptId: null
+                };
+                
+                // Set current topic for compatibility
+                currentTopic = topicKey;
+                currentDifficulty = 'adaptive';
+                
+                // Show adaptive quiz screen FIRST (creates the container)
+                showAdaptiveQuizScreen();
+                
+                // Initialize Who Am I using SAME approach as legacy quiz
+                // Use the GLOBAL whoAmIEnabled and currentQuizAttemptId variables
+                try {
+                    if (typeof initializeWhoAmI === 'function') {
+                        console.log('🎭 ADAPTIVE: Using legacy Who Am I initialization...');
+                        
+                        // Create a REAL quiz attempt (same as legacy quiz)
+                        const attemptResponse = await fetch('/api/create-quiz-attempt', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({
+                                topic: topicKey,
+                                difficulty: 'adaptive'
+                            })
+                        });
+                        const attemptData = await attemptResponse.json();
+                        
+                        if (attemptData.quiz_attempt_id) {
+                            // USE GLOBAL VARIABLES (same as legacy quiz)
+                            currentQuizAttemptId = attemptData.quiz_attempt_id;
+                            whoAmIEnabled = true;
+                            adaptiveState.whoAmIAttemptId = attemptData.quiz_attempt_id;
+                            adaptiveState.whoAmIEnabled = true;
+                            
+                            console.log('✅ Real quiz attempt created:', currentQuizAttemptId);
+                            
+                            // Initialize Who Am I with the adaptive container
+                            await initializeWhoAmI(topicKey, 'adaptive', currentQuizAttemptId, 'adaptive-who-am-i-container');
+                            
+                            // Check if it actually initialized
+                            if (typeof whoAmIState !== 'undefined' && whoAmIState.imageUrl) {
+                                console.log('🎭 Who Am I ENABLED - imageUrl:', whoAmIState.imageUrl);
+                            } else {
+                                whoAmIEnabled = false;
+                                adaptiveState.whoAmIEnabled = false;
+                                console.log('ℹ️ Who Am I not available for this topic');
+                            }
+                        } else {
+                            console.log('⚠️ Could not create quiz attempt for Who Am I');
+                        }
+                    }
+                } catch (whoAmIError) {
+                    console.log('Who Am I not available:', whoAmIError);
+                    whoAmIEnabled = false;
+                    adaptiveState.whoAmIEnabled = false;
+                }
+            } catch (err) {
+                alert('Error starting adaptive quiz: ' + err.message);
+                console.error('Fatal error:', err);
+            }
+        }
+        
+        function showAdaptiveQuizScreen() {
+            // Hide other screens
+            document.getElementById('topicScreen').classList.add('hidden');
+            document.getElementById('difficultyScreen').classList.add('hidden');
+            
+            // Check if BETA adaptive screen exists, create if not
+            let adaptiveScreen = document.getElementById('adaptiveQuizScreenBeta');
+            if (!adaptiveScreen) {
+                createAdaptiveQuizScreen();
+                adaptiveScreen = document.getElementById('adaptiveQuizScreenBeta');
+            }
+            
+            // Update the screen with current state
+            updateAdaptiveProgress();
+            
+            // Show the screen
+            adaptiveScreen.classList.remove('hidden');
+            
+            // Load first question
+            loadAdaptiveQuestion();
+        }
+        
+        function createAdaptiveQuizScreen() {
+            const screen = document.createElement('div');
+            screen.id = 'adaptiveQuizScreenBeta';
+            screen.className = 'screen hidden';
+            screen.innerHTML = `
+                <div class="adaptive-quiz-container" style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+                    <!-- Header with level and progress -->
+                    <div class="adaptive-header" style="background: linear-gradient(135deg, #8b5cf6, #a78bfa); border-radius: 16px; padding: 20px; margin-bottom: 20px; color: white;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <button onclick="exitAdaptiveQuizBeta()" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.9rem;">
+                                <i class="fas fa-arrow-left"></i> Exit
+                            </button>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="font-size: 1.1rem; font-weight: 600;" id="adaptiveTopicTitle"></span>
+                                <span style="background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 6px; font-size: 0.8rem;">BETA</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <!-- Points earned this session -->
+                                <div id="adaptivePointsDisplay" style="display: flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.15); padding: 6px 12px; border-radius: 8px;">
+                                    <span>💰</span>
+                                    <span id="adaptiveSessionPoints">0</span>
+                                </div>
+                                <!-- Streak display -->
+                                <div id="adaptiveStreakDisplay" class="hot-streak-display streak-cold" style="display: flex; align-items: center; gap: 4px; padding: 6px 12px; border-radius: 8px;">
+                                    <span class="streak-flame">🔥</span>
+                                    <span id="adaptiveStreakCount">0</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Level indicator -->
+                        <div style="text-align: center; margin-bottom: 15px;">
+                            <div style="font-size: 2.5rem; font-weight: 700;" id="adaptiveLevelNumber">1</div>
+                            <div style="font-size: 0.9rem; opacity: 0.9;">Level <span id="adaptiveLevelBand">Beginner</span></div>
+                        </div>
+                        
+                        <!-- Progress bar -->
+                        <div style="background: rgba(255,255,255,0.2); border-radius: 10px; height: 20px; overflow: hidden; position: relative;">
+                            <div id="adaptiveProgressBar" style="background: linear-gradient(90deg, #fbbf24, #f59e0b); height: 100%; width: 0%; transition: width 0.5s ease; border-radius: 10px;"></div>
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 0.75rem; font-weight: 600;">
+                                <span id="adaptiveProgressText">0/3 to Level 2</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Speed bonus hint -->
+                        <div style="text-align: center; margin-top: 10px; font-size: 0.8rem; opacity: 0.8;">
+                            <i class="fas fa-bolt"></i> Answer quickly for bonus progress!
+                        </div>
+                    </div>
+                    
+                    <!-- Main content area: Question + Who Am I side by side -->
+                    <div class="adaptive-main-content" style="display: flex; gap: 20px; flex-wrap: wrap;">
+                        
+                        <!-- Who Am I Container (LEFT on desktop) -->
+                        <div id="adaptive-who-am-i-container" class="who-am-i-container" style="display: none; flex: 0 0 320px; max-width: 320px; order: 1;">
+                        </div>
+                        
+                        <!-- Question area (expands to fill space) -->
+                        <div style="flex: 1; min-width: 300px; order: 2;">
+                            <div class="adaptive-question-area" style="background: white; border-radius: 16px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: relative;">
+                                
+                                <!-- TOP BAR: Level Progress Pie + Who Am I Indicator + Next Button -->
+                                <div id="adaptiveQuestionTopBar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #e5e7eb;">
+                                    
+                                    <!-- LEFT: Level Progress Pie Chart -->
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <div id="levelProgressPie" style="width: 50px; height: 50px; position: relative;">
+                                            <svg viewBox="0 0 36 36" style="transform: rotate(-90deg);">
+                                                <!-- Background circle -->
+                                                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e5e7eb" stroke-width="3"/>
+                                                <!-- Progress circle (12 segments for 12 levels) -->
+                                                <circle id="levelProgressCircle" cx="18" cy="18" r="15.9" fill="none" stroke="url(#levelGradient)" stroke-width="3" stroke-dasharray="0 100" stroke-linecap="round"/>
+                                                <defs>
+                                                    <linearGradient id="levelGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                        <stop offset="0%" style="stop-color:#8b5cf6"/>
+                                                        <stop offset="100%" style="stop-color:#06b6d4"/>
+                                                    </linearGradient>
+                                                </defs>
+                                            </svg>
+                                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 0.7rem; font-weight: 700; color: #8b5cf6;">
+                                                <span id="levelPieText">1</span>/12
+                                            </div>
+                                        </div>
+                                        <div style="font-size: 0.75rem; color: #6b7280;">
+                                            <div style="font-weight: 600; color: #374151;">Level Progress</div>
+                                            <div id="levelPieSubtext">Just started</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- CENTER: Dino Bonus Notification (hidden until unlocked) -->
+                                    <div id="dinoBonusNotification" style="display: none; background: linear-gradient(135deg, #fef3c7, #fde68a); padding: 8px 16px; border-radius: 20px; animation: pulse-online 2s infinite; cursor: pointer; box-shadow: 0 2px 8px rgba(251,191,36,0.4);" onclick="document.getElementById('adaptive-dino-bonus-unlock').scrollIntoView({behavior: 'smooth'});">
+                                        <span style="font-size: 0.85rem; color: #92400e; font-weight: 600;">
+                                            🦕 Dino Bonus Ready! ↓
+                                        </span>
+                                    </div>
+                                    
+                                    <!-- RIGHT: Next Question Button (hidden until answered) -->
+                                    <button id="topNextQuestionBtn" onclick="continueAdaptiveQuizBeta()" style="display: none; padding: 10px 20px; background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem; box-shadow: 0 2px 8px rgba(139,92,246,0.3); transition: all 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                        Next <i class="fas fa-arrow-right"></i>
+                                    </button>
+                                </div>
+                                
+                                <div id="adaptiveQuestionContent">
+                                    <div style="text-align: center; padding: 40px;">
+                                        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #8b5cf6;"></i>
+                                        <p style="margin-top: 15px; color: #6b7280;">Loading question...</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Feedback area (hidden initially) -->
+                            <div id="adaptiveFeedbackBeta" class="hidden" style="margin-top: 20px; border-radius: 16px; padding: 20px; text-align: center;">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Dino Bonus Unlock Card (for adaptive quiz) -->
+                    <div id="adaptive-dino-bonus-unlock" class="bonus-question-unlock" style="display: none; margin-top: 20px; background: linear-gradient(135deg, #fef3c7, #fde68a); border-radius: 16px; padding: 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                        <div style="font-size: 3rem; margin-bottom: 10px;">🦕</div>
+                        <h3 style="color: #92400e; margin-bottom: 10px;">Dino Bonus Unlocked!</h3>
+                        <p style="color: #a16207; margin-bottom: 15px;">5 correct in a row! Try a bonus question for extra points!</p>
+                        <div style="display: flex; justify-content: center; gap: 10px;">
+                            <button onclick="startBonusQuestion(); document.getElementById('adaptive-dino-bonus-unlock').style.display='none'; showDinoBonusNotification(false);" style="padding: 10px 20px; background: #22c55e; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                                <i class="fas fa-play"></i> Play Bonus
+                            </button>
+                            <button onclick="document.getElementById('adaptive-dino-bonus-unlock').style.display='none'; showDinoBonusNotification(false);" style="padding: 10px 20px; background: #9ca3af; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                                Skip
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Reset option -->
+                    <div style="text-align: center; margin-top: 30px;">
+                        <button onclick="confirmAdaptiveResetBeta()" style="background: none; border: none; color: #9ca3af; font-size: 0.85rem; cursor: pointer; text-decoration: underline;">
+                            Reset progress and start from Level 1
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(screen);
+        }
+        
+        function updateAdaptiveProgress() {
+            const level = adaptiveState.currentLevel;
+            const points = adaptiveState.currentPoints;
+            const pointsRequired = getPointsRequired(level);
+            const band = getAdaptiveBand(level);
+            const bandNames = { beginner: 'Beginner', intermediate: 'Intermediate', advanced: 'Advanced', mastery: 'Mastery', application: 'Application', linked: 'Linked' };
+            
+            document.getElementById('adaptiveTopicTitle').textContent = adaptiveState.topicTitle;
+            document.getElementById('adaptiveLevelNumber').textContent = level;
+            document.getElementById('adaptiveLevelBand').textContent = bandNames[band] || band;
+            
+            if (level >= 12) {
+                document.getElementById('adaptiveProgressText').textContent = '🏆 Complete Mastery!';
+                document.getElementById('adaptiveProgressBar').style.width = '100%';
+            } else if (level >= 10) {
+                const nextLevel = level + 1;
+                document.getElementById('adaptiveProgressText').textContent = `🎯 ${points}/${pointsRequired} to Level ${nextLevel}`;
+                document.getElementById('adaptiveProgressBar').style.width = `${(points / pointsRequired) * 100}%`;
+            } else {
+                const nextLevel = level + 1;
+                document.getElementById('adaptiveProgressText').textContent = `${points}/${pointsRequired} to Level ${nextLevel}`;
+                document.getElementById('adaptiveProgressBar').style.width = `${(points / pointsRequired) * 100}%`;
+            }
+            
+            // Update Level Progress Pie Chart
+            updateLevelProgressPie(level);
+        }
+        
+        // Update the level progress pie chart (shows levels 1-12 completion)
+        function updateLevelProgressPie(currentLevel) {
+            const circle = document.getElementById('levelProgressCircle');
+            const pieText = document.getElementById('levelPieText');
+            const pieSubtext = document.getElementById('levelPieSubtext');
+            
+            if (!circle) return;
+            
+            // Calculate percentage (level 1 = 8.33%, level 12 = 100%)
+            const percentage = (currentLevel / 12) * 100;
+            
+            // SVG circle dasharray for progress
+            // circumference = 2 * PI * r = 2 * 3.14159 * 15.9 ≈ 100
+            circle.setAttribute('stroke-dasharray', `${percentage} 100`);
+            
+            // Update text
+            if (pieText) pieText.textContent = currentLevel;
+            
+            // Update subtext based on level
+            if (pieSubtext) {
+                if (currentLevel === 1) {
+                    pieSubtext.textContent = 'Just started';
+                } else if (currentLevel <= 3) {
+                    pieSubtext.textContent = 'Beginner';
+                } else if (currentLevel <= 6) {
+                    pieSubtext.textContent = 'Intermediate';
+                } else if (currentLevel <= 9) {
+                    pieSubtext.textContent = 'Advanced';
+                } else if (currentLevel <= 11) {
+                    pieSubtext.textContent = 'Almost there!';
+                } else {
+                    pieSubtext.textContent = '🏆 Mastered!';
+                }
+            }
+        }
+        
+        // Show/hide the top Next Question button
+        function showTopNextButton(show) {
+            const btn = document.getElementById('topNextQuestionBtn');
+            if (btn) {
+                btn.style.display = show ? 'block' : 'none';
+            }
+        }
+        
+        // Show/hide Dino Bonus notification in top bar
+        function showDinoBonusNotification(show) {
+            const notification = document.getElementById('dinoBonusNotification');
+            if (notification) {
+                notification.style.display = show ? 'block' : 'none';
+            }
+        }
+        
+        async function loadAdaptiveQuestion() {
+            // Hide the top Next button when loading new question
+            showTopNextButton(false);
+            
+            // Hide Dino Bonus notification (will show again if still available)
+            showDinoBonusNotification(false);
+            
+            const questionContent = document.getElementById('adaptiveQuestionContent');
+            questionContent.innerHTML = `
+                <div style="text-align: center; padding: 40px;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #8b5cf6;"></i>
+                    <p style="margin-top: 15px; color: #6b7280;">Loading question...</p>
+                </div>
+            `;
+            
+            try {
+                // Build URL with excluded question IDs to prevent repeats
+                let url = `/api/adaptive/question/${adaptiveState.topic}/${adaptiveState.currentLevel}`;
+                if (adaptiveState.shownQuestionIds.length > 0) {
+                    url += `?exclude=${adaptiveState.shownQuestionIds.join(',')}`;
+                }
+                
+                console.log('🔍 Fetching adaptive question:', url);
+                
+                const response = await fetch(url);
+                const question = await response.json();
+                
+                console.log('📦 API Response:', question);
+                
+                // Check for error response
+                if (question.error) {
+                    console.error('❌ API Error:', question.error);
+                    questionContent.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #ef4444;">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 2rem;"></i>
+                            <p style="margin-top: 15px;">No questions available for this level.</p>
+                            <p style="color: #666; font-size: 0.9rem;">${question.error}</p>
+                            <button onclick="loadAdaptiveQuestion()" style="margin-top: 15px; padding: 10px 20px; background: #8b5cf6; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                                Try Again
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Validate question has required fields
+                if (!question.question_text || !question.option_a) {
+                    console.error('❌ Invalid question data:', question);
+                    questionContent.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #ef4444;">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 2rem;"></i>
+                            <p style="margin-top: 15px;">Question data is invalid.</p>
+                            <button onclick="loadAdaptiveQuestion()" style="margin-top: 15px; padding: 10px 20px; background: #8b5cf6; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                                Try Again
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Track this question to avoid repeats
+                if (question.id) {
+                    adaptiveState.shownQuestionIds.push(question.id);
+                }
+                
+                adaptiveState.questionStartTime = Date.now();
+                displayAdaptiveQuestion(question);
+            } catch (error) {
+                console.error('Error loading adaptive question:', error);
+                questionContent.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #ef4444;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem;"></i>
+                        <p style="margin-top: 15px;">Error loading question. Please try again.</p>
+                        <button onclick="loadAdaptiveQuestion()" style="margin-top: 15px; padding: 10px 20px; background: #8b5cf6; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                            Retry
+                        </button>
+                    </div>
+                `;
+            }
+        }
+        
+        function displayAdaptiveQuestion(question) {
+            const questionContent = document.getElementById('adaptiveQuestionContent');
+            
+            // Store current question for flagging
+            adaptiveState.currentQuestion = question;
+            
+            // Check for visual question (SVG)
+            const visualHtml = question.image_svg ? `<div style="margin: 20px 0; text-align: center;"><div style="max-width: 180px; max-height: 180px; margin: 0 auto;">${question.image_svg}</div></div>` : '';
+            
+            questionContent.innerHTML = `
+                <div class="adaptive-question">
+                    <h3 style="font-size: 1.2rem; color: #1f2937; margin-bottom: 20px; line-height: 1.5;">${question.question_text}</h3>
+                    ${visualHtml}
+                    <div class="adaptive-options" style="display: grid; gap: 12px; margin-top: 20px;">
+                        <button class="adaptive-option-btn" onclick="submitAdaptiveAnswerBeta('A', '${question.correct_answer}')" style="padding: 15px 20px; border: 2px solid #e5e7eb; border-radius: 12px; background: white; text-align: left; cursor: pointer; font-size: 1rem; transition: all 0.2s;">
+                            <span style="font-weight: 600; color: #8b5cf6; margin-right: 10px;">A.</span> ${question.option_a}
+                        </button>
+                        <button class="adaptive-option-btn" onclick="submitAdaptiveAnswerBeta('B', '${question.correct_answer}')" style="padding: 15px 20px; border: 2px solid #e5e7eb; border-radius: 12px; background: white; text-align: left; cursor: pointer; font-size: 1rem; transition: all 0.2s;">
+                            <span style="font-weight: 600; color: #8b5cf6; margin-right: 10px;">B.</span> ${question.option_b}
+                        </button>
+                        <button class="adaptive-option-btn" onclick="submitAdaptiveAnswerBeta('C', '${question.correct_answer}')" style="padding: 15px 20px; border: 2px solid #e5e7eb; border-radius: 12px; background: white; text-align: left; cursor: pointer; font-size: 1rem; transition: all 0.2s;">
+                            <span style="font-weight: 600; color: #8b5cf6; margin-right: 10px;">C.</span> ${question.option_c}
+                        </button>
+                        <button class="adaptive-option-btn" onclick="submitAdaptiveAnswerBeta('D', '${question.correct_answer}')" style="padding: 15px 20px; border: 2px solid #e5e7eb; border-radius: 12px; background: white; text-align: left; cursor: pointer; font-size: 1rem; transition: all 0.2s;">
+                            <span style="font-weight: 600; color: #8b5cf6; margin-right: 10px;">D.</span> ${question.option_d}
+                        </button>
+                    </div>
+                    <!-- Report Question Button -->
+                    <div style="margin-top: 20px; text-align: center;">
+                        <button onclick="showAdaptiveFlagModal()" style="background: none; border: none; color: #9ca3af; font-size: 0.85rem; cursor: pointer; padding: 8px 16px; transition: color 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#9ca3af'">
+                            <i class="fas fa-flag" style="margin-right: 6px;"></i>Report an issue with this question
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Add hover effects
+            document.querySelectorAll('.adaptive-option-btn').forEach(btn => {
+                btn.onmouseenter = () => { btn.style.borderColor = '#8b5cf6'; btn.style.background = '#f5f3ff'; };
+                btn.onmouseleave = () => { btn.style.borderColor = '#e5e7eb'; btn.style.background = 'white'; };
+            });
+        }
+        
+        // ==================== ADAPTIVE QUESTION FLAGGING ====================
+        
+        function showAdaptiveFlagModal() {
+            const question = adaptiveState.currentQuestion;
+            if (!question) {
+                alert('No question to report');
+                return;
+            }
+            
+            // Use the existing flag modal but with adaptive handler
+            document.getElementById('flagQuestionText').textContent = question.question_text;
+            document.getElementById('flagQuestionModal').classList.remove('hidden');
+            document.getElementById('flagQuestionModal').classList.add('flex');
+            document.getElementById('flagForm').reset();
+            
+            // Mark that we're flagging an adaptive question
+            window.currentAdaptiveFlagQuestion = question;
+        }
+        
+        async function submitAdaptiveAnswerBeta(selected, correct) {
+            const timeTaken = (Date.now() - adaptiveState.questionStartTime) / 1000;
+            
+            // Normalize correct answer to uppercase letter
+            // Database might store: 0/1/2/3, 'a'/'b'/'c'/'d', or 'A'/'B'/'C'/'D'
+            let normalizedCorrect = correct;
+            if (typeof correct === 'number' || /^[0-3]$/.test(correct)) {
+                const index = parseInt(correct);
+                normalizedCorrect = ['A', 'B', 'C', 'D'][index];
+            } else if (typeof correct === 'string') {
+                normalizedCorrect = correct.toUpperCase();
+            }
+            
+            console.log('Answer check:', { selected, correct, normalizedCorrect });
+            
+            const isCorrect = selected === normalizedCorrect;
+            const fastThreshold = getFastThreshold(adaptiveState.currentLevel);
+            const isFast = timeTaken < fastThreshold;
+            
+            // Update stats
+            adaptiveState.questionsAnswered++;
+            
+            // Disable buttons
+            document.querySelectorAll('.adaptive-option-btn').forEach(btn => {
+                btn.disabled = true;
+                btn.style.cursor = 'default';
+            });
+            
+            // Show correct/incorrect styling
+            document.querySelectorAll('.adaptive-option-btn').forEach(btn => {
+                const optionLetter = btn.textContent.trim().charAt(0);
+                if (optionLetter === normalizedCorrect) {
+                    btn.style.background = '#dcfce7';
+                    btn.style.borderColor = '#22c55e';
+                }
+                if (optionLetter === selected && !isCorrect) {
+                    btn.style.background = '#fee2e2';
+                    btn.style.borderColor = '#ef4444';
+                }
+            });
+            
+            // Calculate LEVEL progression points (for leveling up)
+            let levelPointsEarned = 0;
+            
+            // Calculate REAL points to award (for Prize Shop)
+            let realPointsEarned = 0;
+            const band = getAdaptiveBand(adaptiveState.currentLevel);
+            const pointConfig = ADAPTIVE_POINTS[band] || ADAPTIVE_POINTS.beginner;
+            
+            if (isCorrect) {
+                // Level progression points
+                levelPointsEarned = isFast ? 2 : 1;
+                adaptiveState.currentPoints += levelPointsEarned;
+                
+                // Real points to award
+                realPointsEarned = pointConfig.base;
+                if (isFast) {
+                    realPointsEarned += pointConfig.fast;
+                }
+                
+                // Update session streak
+                adaptiveState.sessionStreak++;
+                adaptiveState.correctAnswers++;
+                adaptiveState.sessionPointsEarned += realPointsEarned;
+                
+                // Play correct sound
+                if (typeof playSound === 'function') {
+                    playSound('correct');
+                }
+                
+                // Streak milestone sounds
+                if (typeof playSound === 'function') {
+                    if (adaptiveState.sessionStreak === 3) playSound('streak3');
+                    else if (adaptiveState.sessionStreak === 5) playSound('streak5');
+                    else if (adaptiveState.sessionStreak === 10) playSound('streak10');
+                }
+                
+                // Who Am I - reveal tile (check BOTH global and adaptiveState for compatibility)
+                const whoAmIActive = whoAmIEnabled || adaptiveState.whoAmIEnabled;
+                console.log('🎭 ADAPTIVE: Checking Who Am I reveal...');
+                console.log('   - global whoAmIEnabled:', whoAmIEnabled);
+                console.log('   - adaptiveState.whoAmIEnabled:', adaptiveState.whoAmIEnabled);
+                console.log('   - typeof onCorrectAnswer:', typeof onCorrectAnswer);
+                
+                if (whoAmIActive && typeof onCorrectAnswer === 'function') {
+                    console.log('🎭 ADAPTIVE: Calling onCorrectAnswer()');
+                    onCorrectAnswer();
+                } else {
+                    console.log('🎭 ADAPTIVE: NOT calling onCorrectAnswer (disabled or function missing)');
+                }
+                
+                // Award real points to user account
+                try {
+                    await fetch('/api/award-points', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            points: realPointsEarned,
+                            source: 'adaptive_quiz',
+                            topic: adaptiveState.topic,
+                            level: adaptiveState.currentLevel
+                        })
+                    });
+                } catch (error) {
+                    console.log('Could not award points:', error);
+                }
+                
+            } else {
+                // Wrong answer
+                adaptiveState.currentPoints = 0; // Reset level progress
+                adaptiveState.sessionStreak = 0; // Reset streak
+                
+                // Play incorrect sound
+                if (typeof playSound === 'function') {
+                    playSound('incorrect');
+                }
+            }
+            
+            // Update streak display
+            updateAdaptiveStreakDisplay();
+            
+            // Update points display
+            document.getElementById('adaptiveSessionPoints').textContent = adaptiveState.sessionPointsEarned;
+            
+            // Check for level up
+            const pointsRequired = getPointsRequired(adaptiveState.currentLevel);
+            let leveledUp = false;
+            if (isCorrect && adaptiveState.currentPoints >= pointsRequired && adaptiveState.currentLevel < 12) {
+                adaptiveState.currentLevel++;
+                adaptiveState.currentPoints = 0;
+                leveledUp = true;
+            }
+            
+            // Save progress to server
+            try {
+                await fetch('/api/adaptive/save-progress', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        topic: adaptiveState.topic,
+                        current_level: adaptiveState.currentLevel,
+                        current_points: adaptiveState.currentPoints
+                    })
+                });
+            } catch (error) {
+                console.log('Could not save progress:', error);
+            }
+            
+            // Show feedback
+            showAdaptiveFeedbackBeta(isCorrect, isFast, levelPointsEarned, realPointsEarned, leveledUp, timeTaken);
+            
+            // Update progress display
+            updateAdaptiveProgress();
+            
+            // Check for Dino Bonus unlock (after streak of 5)
+            if (isCorrect && adaptiveState.sessionStreak === 5) {
+                checkAdaptiveDinoBonusUnlock();
+            }
+        }
+        
+        // Update adaptive streak display with visual styling
+        function updateAdaptiveStreakDisplay() {
+            const streak = adaptiveState.sessionStreak;
+            const display = document.getElementById('adaptiveStreakDisplay');
+            const countEl = document.getElementById('adaptiveStreakCount');
+            
+            if (!display || !countEl) return;
+            
+            countEl.textContent = streak;
+            
+            // Remove all streak classes
+            display.classList.remove('streak-cold', 'streak-warming', 'streak-hot', 'streak-fire', 'streak-legendary');
+            
+            // Add appropriate class based on streak
+            if (streak === 0) {
+                display.classList.add('streak-cold');
+                display.style.background = 'rgba(255,255,255,0.1)';
+            } else if (streak < 3) {
+                display.classList.add('streak-warming');
+                display.style.background = 'rgba(251,191,36,0.3)';
+            } else if (streak < 5) {
+                display.classList.add('streak-hot');
+                display.style.background = 'rgba(249,115,22,0.4)';
+            } else if (streak < 10) {
+                display.classList.add('streak-fire');
+                display.style.background = 'rgba(239,68,68,0.5)';
+            } else {
+                display.classList.add('streak-legendary');
+                display.style.background = 'linear-gradient(90deg, rgba(239,68,68,0.6), rgba(168,85,247,0.6))';
+            }
+        }
+        
+        // Check for Dino Bonus unlock
+        function checkAdaptiveDinoBonusUnlock() {
+            const dinoBonusUnlock = document.getElementById('adaptive-dino-bonus-unlock');
+            if (dinoBonusUnlock && typeof startBonusQuestion === 'function') {
+                // Store info for bonus submission
+                window.bonusQuizInfo = {
+                    topic: adaptiveState.topic,
+                    score: 100 // Treat streak of 5 as 100%
+                };
+                dinoBonusUnlock.style.display = 'block';
+                
+                // Show the notification in the top bar
+                showDinoBonusNotification(true);
+                
+                console.log('🦕 Dino Bonus unlocked for 5 streak!');
+            }
+        }
+        
+        function showAdaptiveFeedbackBeta(isCorrect, isFast, levelPointsEarned, realPointsEarned, leveledUp, timeTaken) {
+            // Show the top Next button for easy access
+            showTopNextButton(true);
+            
+            // Show Dino Bonus notification if bonus card is visible
+            const dinoBonusCard = document.getElementById('adaptive-dino-bonus-unlock');
+            if (dinoBonusCard && dinoBonusCard.style.display !== 'none') {
+                showDinoBonusNotification(true);
+            }
+            
+            const feedback = document.getElementById('adaptiveFeedbackBeta');
+            feedback.classList.remove('hidden');
+            
+            const streakMsg = adaptiveState.sessionStreak > 1 ? 
+                `<span style="color: #f97316;">🔥 ${adaptiveState.sessionStreak} streak!</span>` : '';
+            
+            if (leveledUp) {
+                feedback.style.background = 'linear-gradient(135deg, #fef3c7, #fde68a)';
+                feedback.innerHTML = `
+                    <div style="font-size: 3rem; margin-bottom: 10px;">🎉</div>
+                    <h3 style="color: #92400e; font-size: 1.5rem; margin-bottom: 10px;">LEVEL UP!</h3>
+                    <p style="color: #a16207; font-size: 1.1rem;">You've reached Level ${adaptiveState.currentLevel}!</p>
+                    <p style="color: #16a34a; font-size: 1rem; margin-top: 10px;">💰 +${realPointsEarned} points ${streakMsg}</p>
+                    <button onclick="continueAdaptiveQuizBeta()" style="margin-top: 20px; padding: 12px 30px; background: #8b5cf6; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 600;">
+                        Continue <i class="fas fa-arrow-right"></i>
+                    </button>
+                `;
+            } else if (isCorrect) {
+                const speedMsg = isFast ? 
+                    `<span style="color: #f59e0b;"><i class="fas fa-bolt"></i> Speed Bonus!</span>` : '';
+                feedback.style.background = 'linear-gradient(135deg, #dcfce7, #bbf7d0)';
+                feedback.innerHTML = `
+                    <div style="font-size: 2rem; margin-bottom: 10px;">✓</div>
+                    <h3 style="color: #166534; font-size: 1.2rem; margin-bottom: 5px;">Correct!</h3>
+                    <p style="color: #16a34a; font-size: 1rem;">💰 +${realPointsEarned} points ${speedMsg}</p>
+                    <p style="color: #6b7280; font-size: 0.85rem; margin-top: 5px;">
+                        +${levelPointsEarned} level progress • ${timeTaken.toFixed(1)}s ${streakMsg}
+                    </p>
+                    <button onclick="continueAdaptiveQuizBeta()" style="margin-top: 15px; padding: 10px 25px; background: #22c55e; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.95rem;">
+                        Next Question <i class="fas fa-arrow-right"></i>
+                    </button>
+                `;
+            } else {
+                feedback.style.background = 'linear-gradient(135deg, #fee2e2, #fecaca)';
+                feedback.innerHTML = `
+                    <div style="font-size: 2rem; margin-bottom: 10px;">✗</div>
+                    <h3 style="color: #991b1b; font-size: 1.2rem; margin-bottom: 5px;">Not quite</h3>
+                    <p style="color: #b91c1c; font-size: 0.95rem;">Progress reset - keep going!</p>
+                    <p style="color: #6b7280; font-size: 0.8rem; margin-top: 5px;">Streak lost 💔</p>
+                    <button onclick="continueAdaptiveQuizBeta()" style="margin-top: 15px; padding: 10px 25px; background: #8b5cf6; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.95rem;">
+                        Try Again <i class="fas fa-arrow-right"></i>
+                    </button>
+                `;
+            }
+        }
+        
+        function continueAdaptiveQuizBeta() {
+            document.getElementById('adaptiveFeedbackBeta').classList.add('hidden');
+            loadAdaptiveQuestion();
+        }
+        
+        async function exitAdaptiveQuizBeta() {
+            // Save progress before exiting
+            try {
+                await fetch('/api/adaptive/save-progress', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        topic: adaptiveState.topic,
+                        current_level: adaptiveState.currentLevel,
+                        current_points: adaptiveState.currentPoints
+                    })
+                });
+            } catch (error) {
+                console.log('Could not save progress:', error);
+            }
+            
+            adaptiveState.active = false;
+            document.getElementById('adaptiveQuizScreenBeta').classList.add('hidden');
+            document.getElementById('topicScreen').classList.remove('hidden');
+        }
+        
+        async function confirmAdaptiveResetBeta() {
+            if (confirm(`Are you sure? This will reset your ${adaptiveState.topicTitle} progress back to Level 1.`)) {
+                // Call API to reset progress
+                try {
+                    await fetch('/api/adaptive/reset-progress', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ topic: adaptiveState.topic })
+                    });
+                } catch (error) {
+                    console.log('Could not reset progress on server:', error);
+                }
+                
+                adaptiveState.currentLevel = 1;
+                adaptiveState.currentPoints = 0;
+                currentStreak = 0;
+                document.getElementById('adaptiveStreakCount').textContent = '0';
+                updateAdaptiveProgress();
+                loadAdaptiveQuestion();
+            }
+        }
+        // ===== END ADAPTIVE QUIZ SYSTEM =====
 
         async function startQuiz(difficulty) {
             currentDifficulty = difficulty;
@@ -5595,12 +7049,15 @@
             document.getElementById('flagQuestionModal').classList.add('flex');
 
             document.getElementById('flagForm').reset();
+            // Clear adaptive flag marker when showing for standard question
+            window.currentAdaptiveFlagQuestion = null;
         }
 
         function hideFlagModal() {
             document.getElementById('flagQuestionModal').classList.add('hidden');
             document.getElementById('flagQuestionModal').classList.remove('flex');
             currentFlagQuestionId = null;
+            window.currentAdaptiveFlagQuestion = null;
         }
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -5618,15 +7075,34 @@
                     }
 
                     try {
-                        const response = await fetch('/api/student/flag-question', {
-                            method: 'POST',
-                            headers: {'Content-Type': 'application/json'},
-                            body: JSON.stringify({
-                                question_id: currentFlagQuestionId,
-                                flag_type: flagType,
-                                description: description
-                            })
-                        });
+                        let response;
+                        
+                        // Check if this is an adaptive question flag
+                        if (window.currentAdaptiveFlagQuestion) {
+                            const question = window.currentAdaptiveFlagQuestion;
+                            response = await fetch('/api/student/flag-adaptive-question', {
+                                method: 'POST',
+                                headers: {'Content-Type': 'application/json'},
+                                body: JSON.stringify({
+                                    question_id: question.id,
+                                    topic: adaptiveState ? adaptiveState.topic : '',
+                                    flag_type: flagType,
+                                    description: description,
+                                    question_text: question.question_text
+                                })
+                            });
+                        } else {
+                            // Standard question flag
+                            response = await fetch('/api/student/flag-question', {
+                                method: 'POST',
+                                headers: {'Content-Type': 'application/json'},
+                                body: JSON.stringify({
+                                    question_id: currentFlagQuestionId,
+                                    flag_type: flagType,
+                                    description: description
+                                })
+                            });
+                        }
 
                         const data = await response.json();
 
@@ -7947,7 +9423,85 @@ if (typeof module !== 'undefined' && module.exports) {
 </script>
 
 <!-- TUTORIAL MODAL COMPONENT -->
-<!-- Add this to student_app.html, just before the closing </body> tag -->
+<!-- Add this to student_app.html, just before the closing 
+<!-- Smart Quiz Modal (Adaptive Learning) -->
+<div id="smartQuizModal" class="fixed inset-0 bg-black bg-opacity-70 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 transform transition-all">
+        <div class="text-center mb-6">
+            <div class="text-6xl mb-4">🧠</div>
+            <h2 class="text-2xl font-bold text-gray-800">Smart Quiz</h2>
+            <p class="text-gray-600 mt-2">AI-powered personalised learning</p>
+        </div>
+        
+        <!-- Mode Selection -->
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Choose your focus:</label>
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="setSmartQuizMode('auto')" class="smart-mode-btn p-3 rounded-lg border-2 border-green-400 bg-green-50 transition-all text-left" data-mode="auto">
+                    <div class="text-xl">🎯</div>
+                    <div class="text-sm font-medium">Auto</div>
+                    <div class="text-xs text-gray-500">Best overall pick</div>
+                </button>
+                <button onclick="setSmartQuizMode('review')" class="smart-mode-btn p-3 rounded-lg border-2 border-gray-200 hover:border-green-400 transition-all text-left" data-mode="review">
+                    <div class="text-xl">🔄</div>
+                    <div class="text-sm font-medium">Review</div>
+                    <div class="text-xs text-gray-500">Refresh memory</div>
+                </button>
+                <button onclick="setSmartQuizMode('practice')" class="smart-mode-btn p-3 rounded-lg border-2 border-gray-200 hover:border-green-400 transition-all text-left" data-mode="practice">
+                    <div class="text-xl">💪</div>
+                    <div class="text-sm font-medium">Practice</div>
+                    <div class="text-xs text-gray-500">Work on weak areas</div>
+                </button>
+                <button onclick="setSmartQuizMode('challenge')" class="smart-mode-btn p-3 rounded-lg border-2 border-gray-200 hover:border-green-400 transition-all text-left" data-mode="challenge">
+                    <div class="text-xl">🚀</div>
+                    <div class="text-sm font-medium">Challenge</div>
+                    <div class="text-xs text-gray-500">Push your limits</div>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Loading State -->
+        <div id="smartQuizLoading" class="bg-gray-100 rounded-xl p-6 mb-6 text-center">
+            <div class="animate-spin text-4xl mb-2">⚙️</div>
+            <p class="text-gray-600">Analysing your progress...</p>
+        </div>
+        
+        <!-- Error State -->
+        <div id="smartQuizError" class="hidden bg-red-50 text-red-600 rounded-xl p-4 mb-6 text-center">
+            Error loading recommendation
+        </div>
+        
+        <!-- Recommendation Content -->
+        <div id="smartQuizContent" class="hidden bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 mb-6">
+            <h3 class="font-bold text-gray-800 mb-3">📊 Recommended for You:</h3>
+            <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-600">Topic:</span>
+                    <span id="smartQuizTopic" class="font-bold text-gray-800">Loading...</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-600">Difficulty:</span>
+                    <span id="smartQuizDifficulty" class="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">Loading...</span>
+                </div>
+                <div id="smartQuizMasteryContainer" class="hidden text-center pt-2 border-t border-green-200">
+                    <span id="smartQuizMastery" class="text-sm text-gray-600">Current mastery: 0%</span>
+                </div>
+                <div class="pt-2 border-t border-green-200">
+                    <p id="smartQuizReason" class="text-sm text-gray-600 italic">Loading reason...</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flex gap-3">
+            <button onclick="closeSmartQuizModal()" class="flex-1 py-3 px-6 rounded-xl border-2 border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-all">
+                Cancel
+            </button>
+            <button onclick="startSmartQuiz()" class="flex-1 py-3 px-6 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold hover:from-green-600 hover:to-emerald-600 transition-all">
+                🧠 Start!
+            </button>
+        </div>
+    </div>
+</div>
 
 <!-- Tutorial Splash Screen Modal -->
 <div id="tutorialModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50" style="display: none;">
@@ -9303,6 +10857,780 @@ console.log('Tutorial Manager initialized');
         </div>
     </div>
 </div>
+
+
+<!-- Smart Quiz Modal (Adaptive Learning) -->
+<div id="smartQuizModal" class="fixed inset-0 bg-black bg-opacity-70 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 transform transition-all">
+        <div class="text-center mb-6">
+            <div class="text-6xl mb-4">🧠</div>
+            <h2 class="text-2xl font-bold text-gray-800">Smart Quiz</h2>
+            <p class="text-gray-600 mt-2">AI-powered personalised learning</p>
+        </div>
+        
+        <!-- Mode Selection -->
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Choose your focus:</label>
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="setSmartQuizMode('auto')" class="smart-mode-btn p-3 rounded-lg border-2 border-green-400 bg-green-50 transition-all text-left" data-mode="auto">
+                    <div class="text-xl">🎯</div>
+                    <div class="text-sm font-medium">Auto</div>
+                    <div class="text-xs text-gray-500">Best overall pick</div>
+                </button>
+                <button onclick="setSmartQuizMode('review')" class="smart-mode-btn p-3 rounded-lg border-2 border-gray-200 hover:border-green-400 transition-all text-left" data-mode="review">
+                    <div class="text-xl">🔄</div>
+                    <div class="text-sm font-medium">Review</div>
+                    <div class="text-xs text-gray-500">Refresh memory</div>
+                </button>
+                <button onclick="setSmartQuizMode('practice')" class="smart-mode-btn p-3 rounded-lg border-2 border-gray-200 hover:border-green-400 transition-all text-left" data-mode="practice">
+                    <div class="text-xl">💪</div>
+                    <div class="text-sm font-medium">Practice</div>
+                    <div class="text-xs text-gray-500">Work on weak areas</div>
+                </button>
+                <button onclick="setSmartQuizMode('challenge')" class="smart-mode-btn p-3 rounded-lg border-2 border-gray-200 hover:border-green-400 transition-all text-left" data-mode="challenge">
+                    <div class="text-xl">🚀</div>
+                    <div class="text-sm font-medium">Challenge</div>
+                    <div class="text-xs text-gray-500">Push your limits</div>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Loading State -->
+        <div id="smartQuizLoading" class="bg-gray-100 rounded-xl p-6 mb-6 text-center">
+            <div class="animate-spin text-4xl mb-2">⚙️</div>
+            <p class="text-gray-600">Analysing your progress...</p>
+        </div>
+        
+        <!-- Error State -->
+        <div id="smartQuizError" class="hidden bg-red-50 text-red-600 rounded-xl p-4 mb-6 text-center">
+            Error loading recommendation
+        </div>
+        
+        <!-- Recommendation Content -->
+        <div id="smartQuizContent" class="hidden bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 mb-6">
+            <h3 class="font-bold text-gray-800 mb-3">📊 Recommended for You:</h3>
+            <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-600">Topic:</span>
+                    <span id="smartQuizTopic" class="font-bold text-gray-800">Loading...</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-600">Difficulty:</span>
+                    <span id="smartQuizDifficulty" class="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">Loading...</span>
+                </div>
+                <div id="smartQuizMasteryContainer" class="hidden text-center pt-2 border-t border-green-200">
+                    <span id="smartQuizMastery" class="text-sm text-gray-600">Current mastery: 0%</span>
+                </div>
+                <div class="pt-2 border-t border-green-200">
+                    <p id="smartQuizReason" class="text-sm text-gray-600 italic">Loading reason...</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flex gap-3">
+            <button onclick="closeSmartQuizModal()" class="flex-1 py-3 px-6 rounded-xl border-2 border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-all">
+                Cancel
+            </button>
+            <button onclick="startSmartQuiz()" class="flex-1 py-3 px-6 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold hover:from-green-600 hover:to-emerald-600 transition-all">
+                🧠 Start!
+            </button>
+        </div>
+    </div>
+</div>
+
+
+<!-- Adaptive Quiz Modal (10-Level Progression) -->
+<div id="adaptiveQuizModal" class="fixed inset-0 bg-black bg-opacity-70 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 transform transition-all max-h-[90vh] overflow-y-auto">
+        <div class="text-center mb-6">
+            <div class="text-6xl mb-4">🎯</div>
+            <h2 class="text-2xl font-bold text-gray-800">Adaptive Quiz</h2>
+            <p class="text-gray-600 mt-2">Master topics through 10 progressive levels</p>
+        </div>
+        
+        <!-- Topic Selection -->
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-3">Choose your topic:</label>
+            <div id="adaptiveTopicGrid" class="grid grid-cols-1 gap-3">
+                <!-- Topics loaded dynamically -->
+                <div class="text-center py-8 text-gray-500">
+                    <div class="animate-spin text-3xl mb-2">⚙️</div>
+                    Loading topics...
+                </div>
+            </div>
+        </div>
+        
+        <!-- Selected Topic Info -->
+        <div id="adaptiveTopicInfo" class="hidden bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-4 mb-6">
+            <h3 class="font-bold text-gray-800 mb-3">📊 Your Progress:</h3>
+            <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-600">Starting Level:</span>
+                    <span id="adaptiveStartLevel" class="font-bold text-purple-700">Level 1</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-600">Questions:</span>
+                    <span id="adaptiveQuestionCount" class="font-medium text-gray-800">10</span>
+                </div>
+                <div class="pt-2">
+                    <div class="text-xs text-gray-500 mb-1">Level progression:</div>
+                    <div class="flex gap-1">
+                        <div id="adaptiveLevelPreview" class="flex gap-1">
+                            <!-- Level dots preview -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question Count Selection -->
+        <div id="adaptiveOptionsSection" class="hidden mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Number of questions:</label>
+            <div class="flex gap-2">
+                <button onclick="setAdaptiveQuestionCount(5)" class="adaptive-count-btn px-4 py-2 rounded-lg border-2 border-gray-200 hover:border-purple-400 transition-all" data-count="5">5</button>
+                <button onclick="setAdaptiveQuestionCount(10)" class="adaptive-count-btn px-4 py-2 rounded-lg border-2 border-purple-400 bg-purple-50 transition-all" data-count="10">10</button>
+                <button onclick="setAdaptiveQuestionCount(15)" class="adaptive-count-btn px-4 py-2 rounded-lg border-2 border-gray-200 hover:border-purple-400 transition-all" data-count="15">15</button>
+                <button onclick="setAdaptiveQuestionCount(20)" class="adaptive-count-btn px-4 py-2 rounded-lg border-2 border-gray-200 hover:border-purple-400 transition-all" data-count="20">20</button>
+            </div>
+        </div>
+        
+        <div class="flex gap-3">
+            <button onclick="closeAdaptiveQuizModal()" class="flex-1 py-3 px-6 rounded-xl border-2 border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-all">
+                Cancel
+            </button>
+            <button id="startAdaptiveBtn" onclick="startAdaptiveQuiz()" disabled class="flex-1 py-3 px-6 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-bold hover:from-purple-600 hover:to-indigo-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                🎯 Start!
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Adaptive Quiz Active Screen -->
+<div id="adaptiveQuizScreen" class="fixed inset-0 bg-gray-100 z-40 hidden overflow-y-auto">
+    <!-- Adaptive Quiz Header -->
+    <div class="adaptive-quiz-header bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-4 shadow-lg">
+        <div class="max-w-4xl mx-auto flex items-center justify-between flex-wrap gap-3">
+            <div class="flex items-center gap-4">
+                <button onclick="abandonAdaptiveQuiz()" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg flex items-center gap-2 transition-all">
+                    <i class="fas fa-arrow-left"></i> Exit
+                </button>
+                <div>
+                    <div class="font-bold text-lg" id="adaptiveQuizTitle">Solving Equations</div>
+                    <div class="text-sm opacity-90">Question <span id="adaptiveQuestionNum">1</span> of <span id="adaptiveTotalQuestions">10</span></div>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <!-- Level Indicator -->
+                <div class="adaptive-level-indicator">
+                    <span>Level</span>
+                    <span id="adaptiveCurrentLevel" class="text-yellow-300 text-lg">1</span>
+                    <div class="adaptive-level-bar" id="adaptiveLevelBar">
+                        <!-- 10 dots for levels -->
+                    </div>
+                </div>
+                
+                <!-- Score -->
+                <div class="bg-white/20 px-4 py-2 rounded-lg">
+                    <span class="text-sm opacity-90">Score:</span>
+                    <span id="adaptiveScore" class="font-bold ml-1">0</span>/<span id="adaptiveMaxScore">10</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Question Area -->
+    <div class="max-w-3xl mx-auto p-6 pb-24">
+        <!-- Level Info Banner -->
+        <div id="adaptiveLevelBanner" class="bg-purple-100 border border-purple-200 rounded-xl p-3 mb-4 flex items-center justify-between">
+            <div>
+                <span class="text-purple-800 font-medium">Level <span id="adaptiveBannerLevel">1</span>:</span>
+                <span id="adaptiveLevelName" class="text-purple-600">Foundation</span>
+            </div>
+            <div class="text-sm text-purple-600">
+                <span id="adaptiveStreak">0</span> correct in a row
+            </div>
+        </div>
+        
+        <!-- Question Card -->
+        <div class="bg-white rounded-2xl shadow-lg p-8 mb-6">
+            <!-- Image Area (for visual questions) -->
+            <div id="adaptiveQuestionImage" class="hidden flex justify-center mb-6">
+                <!-- SVG will be inserted here -->
+            </div>
+            
+            <div id="adaptiveQuestionText" class="text-xl text-gray-800 mb-8 leading-relaxed">
+                Loading question...
+            </div>
+            
+            <div id="adaptiveOptionsContainer" class="space-y-3">
+                <!-- Options loaded dynamically -->
+            </div>
+        </div>
+        
+        <!-- Feedback Area -->
+        <div id="adaptiveFeedback" class="hidden rounded-2xl p-6 mb-6">
+            <div class="flex items-start gap-4">
+                <div id="adaptiveFeedbackIcon" class="text-4xl">✅</div>
+                <div class="flex-1">
+                    <div id="adaptiveFeedbackTitle" class="font-bold text-lg mb-2">Correct!</div>
+                    <div id="adaptiveFeedbackExplanation" class="text-gray-600"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Action Button -->
+        <div class="text-center">
+            <button id="adaptiveNextBtn" onclick="adaptiveNextQuestion()" class="hidden px-8 py-4 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-bold rounded-xl hover:from-purple-600 hover:to-indigo-600 transition-all text-lg">
+                Next Question →
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Adaptive Quiz Results Screen -->
+<div id="adaptiveResultsScreen" class="fixed inset-0 bg-gradient-to-br from-purple-600 to-indigo-700 z-40 hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-md w-full p-8 text-center">
+        <div class="text-6xl mb-4" id="adaptiveResultEmoji">🎉</div>
+        <h2 class="text-3xl font-bold text-gray-800 mb-2">Quiz Complete!</h2>
+        
+        <div class="text-6xl font-bold text-purple-600 my-6">
+            <span id="adaptiveFinalScore">8</span>/<span id="adaptiveFinalTotal">10</span>
+        </div>
+        
+        <div class="text-xl text-gray-600 mb-6">
+            <span id="adaptiveFinalPercent">80</span>% Correct
+        </div>
+        
+        <!-- Level Progress -->
+        <div class="bg-purple-50 rounded-xl p-4 mb-6">
+            <div class="text-sm text-gray-600 mb-2">Level Progress</div>
+            <div class="flex items-center justify-center gap-3">
+                <span class="text-2xl font-bold text-gray-400" id="adaptiveStartLevelResult">1</span>
+                <span class="text-3xl">→</span>
+                <span class="text-3xl font-bold text-purple-600" id="adaptiveEndLevelResult">3</span>
+            </div>
+            <div id="adaptiveLevelChangeText" class="text-sm text-green-600 font-medium mt-2">
+                +2 Levels! 🚀
+            </div>
+        </div>
+        
+        <div class="space-y-3">
+            <button onclick="restartAdaptiveQuiz()" class="w-full py-3 px-6 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-bold rounded-xl hover:from-purple-600 hover:to-indigo-600 transition-all">
+                🔄 Play Again
+            </button>
+            <button onclick="closeAdaptiveResults()" class="w-full py-3 px-6 border-2 border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-all">
+                Back to Dashboard
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ============================================================
+// ADAPTIVE QUIZ SYSTEM - 10-Level Progression
+// ============================================================
+
+let adaptiveQuizState = {
+    topic: null,
+    topicName: null,
+    numQuestions: 10,
+    currentQuestion: null,
+    questionNumber: 0,
+    score: 0,
+    currentLevel: 1,
+    startingLevel: 1,
+    streak: 0,
+    selectedAnswer: null,
+    isAnswered: false
+};
+
+const LEVEL_NAMES = {
+    1: 'Foundation',
+    2: 'Building Basics',
+    3: 'Gaining Confidence',
+    4: 'Developing Skills',
+    5: 'Intermediate',
+    6: 'Advancing',
+    7: 'Strong Progress',
+    8: 'Near Mastery',
+    9: 'Expert Level',
+    10: 'Champion!'
+};
+
+const TOPIC_ICONS = {
+    'solving_equations': '🔢',
+    'fractions': '🥧',
+    'percentages': '💯',
+    'probability': '🎲',
+    'introductory_algebra': '📐'
+};
+
+const TOPIC_DISPLAY_NAMES = {
+    'solving_equations': 'Solving Equations',
+    'fractions': 'Fractions',
+    'percentages': 'Percentages',
+    'probability': 'Probability',
+    'introductory_algebra': 'Algebra'
+};
+
+// Show guest message
+function showAdaptiveQuizGuestMessage() {
+    alert('🔒 Adaptive Quiz requires a Guest Code!\n\nAdaptive Quiz tracks your progress through 10 levels of difficulty.\n\nClick "Return with Code" on the home page to get your personal guest code, or register for a full account!');
+}
+
+// Open the modal
+function showAdaptiveQuizModal() {
+    document.getElementById('adaptiveQuizModal').classList.remove('hidden');
+    loadAdaptiveTopics();
+}
+
+// Close the modal
+function closeAdaptiveQuizModal() {
+    document.getElementById('adaptiveQuizModal').classList.add('hidden');
+    // Reset selection
+    adaptiveQuizState.topic = null;
+    document.getElementById('adaptiveTopicInfo').classList.add('hidden');
+    document.getElementById('adaptiveOptionsSection').classList.add('hidden');
+    document.getElementById('startAdaptiveBtn').disabled = true;
+}
+
+// Load available topics
+async function loadAdaptiveTopics() {
+    const grid = document.getElementById('adaptiveTopicGrid');
+    
+    try {
+        const response = await fetch('/api/quiz-adaptive/topics');
+        const data = await response.json();
+        
+        if (data.topics && data.topics.length > 0) {
+            grid.innerHTML = data.topics.map(t => `
+                <div class="adaptive-topic-card" onclick="selectAdaptiveTopic('${t.topic}', ${t.question_count})" data-topic="${t.topic}">
+                    <div class="topic-icon">${TOPIC_ICONS[t.topic] || '📚'}</div>
+                    <div class="topic-name">${TOPIC_DISPLAY_NAMES[t.topic] || t.topic}</div>
+                    <div class="topic-questions">${t.question_count} questions</div>
+                    <div class="topic-level">Levels ${t.min_level}-${t.max_level}</div>
+                </div>
+            `).join('');
+        } else {
+            grid.innerHTML = `
+                <div class="text-center py-8 text-gray-500">
+                    <div class="text-4xl mb-2">📭</div>
+                    <p>No adaptive topics available yet.</p>
+                    <p class="text-sm mt-2">Ask your teacher to generate adaptive questions!</p>
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Error loading topics:', error);
+        grid.innerHTML = `
+            <div class="text-center py-8 text-red-500">
+                <div class="text-4xl mb-2">⚠️</div>
+                <p>Error loading topics</p>
+            </div>
+        `;
+    }
+}
+
+// Select a topic
+async function selectAdaptiveTopic(topic, questionCount) {
+    // Update UI selection
+    document.querySelectorAll('.adaptive-topic-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    document.querySelector(`.adaptive-topic-card[data-topic="${topic}"]`).classList.add('selected');
+    
+    adaptiveQuizState.topic = topic;
+    adaptiveQuizState.topicName = TOPIC_DISPLAY_NAMES[topic] || topic;
+    
+    // Get recommended level
+    try {
+        const response = await fetch(`/api/quiz-adaptive/recommended-level/${topic}`);
+        const data = await response.json();
+        
+        adaptiveQuizState.startingLevel = data.level;
+        adaptiveQuizState.currentLevel = data.level;
+        
+        // Update info display
+        document.getElementById('adaptiveStartLevel').textContent = `Level ${data.level}`;
+        document.getElementById('adaptiveQuestionCount').textContent = adaptiveQuizState.numQuestions;
+        
+        // Update level preview dots
+        const previewContainer = document.getElementById('adaptiveLevelPreview');
+        previewContainer.innerHTML = Array.from({length: 10}, (_, i) => {
+            const level = i + 1;
+            let dotClass = 'w-4 h-4 rounded-full ';
+            if (level < data.level) {
+                dotClass += 'bg-green-400';
+            } else if (level === data.level) {
+                dotClass += 'bg-purple-500 ring-2 ring-purple-300';
+            } else {
+                dotClass += 'bg-gray-200';
+            }
+            return `<div class="${dotClass}" title="Level ${level}"></div>`;
+        }).join('');
+        
+    } catch (error) {
+        console.error('Error getting recommended level:', error);
+        adaptiveQuizState.startingLevel = 1;
+        adaptiveQuizState.currentLevel = 1;
+        document.getElementById('adaptiveStartLevel').textContent = 'Level 1';
+    }
+    
+    // Show info sections
+    document.getElementById('adaptiveTopicInfo').classList.remove('hidden');
+    document.getElementById('adaptiveOptionsSection').classList.remove('hidden');
+    document.getElementById('startAdaptiveBtn').disabled = false;
+}
+
+// Set question count
+function setAdaptiveQuestionCount(count) {
+    adaptiveQuizState.numQuestions = count;
+    document.getElementById('adaptiveQuestionCount').textContent = count;
+    
+    // Update button styles
+    document.querySelectorAll('.adaptive-count-btn').forEach(btn => {
+        if (parseInt(btn.dataset.count) === count) {
+            btn.classList.remove('border-gray-200');
+            btn.classList.add('border-purple-400', 'bg-purple-50');
+        } else {
+            btn.classList.add('border-gray-200');
+            btn.classList.remove('border-purple-400', 'bg-purple-50');
+        }
+    });
+}
+
+// Start the adaptive quiz
+async function startAdaptiveQuiz() {
+    if (!adaptiveQuizState.topic) return;
+    
+    try {
+        const response = await fetch('/api/quiz-adaptive/start', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                topic: adaptiveQuizState.topic,
+                num_questions: adaptiveQuizState.numQuestions,
+                mode: 'adaptive'
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Update state
+            adaptiveQuizState.currentLevel = data.starting_level;
+            adaptiveQuizState.startingLevel = data.starting_level;
+            adaptiveQuizState.questionNumber = 1;
+            adaptiveQuizState.score = 0;
+            adaptiveQuizState.streak = 0;
+            adaptiveQuizState.currentQuestion = data.question;
+            
+            // Close modal, show quiz screen
+            closeAdaptiveQuizModal();
+            document.getElementById('adaptiveQuizScreen').classList.remove('hidden');
+            
+            // Initialize UI
+            updateAdaptiveQuizUI();
+            renderAdaptiveQuestion(data.question);
+            renderLevelBar();
+        } else {
+            alert('Error starting quiz: ' + (data.error || 'Unknown error'));
+        }
+    } catch (error) {
+        console.error('Error starting adaptive quiz:', error);
+        alert('Could not start adaptive quiz. Please try again.');
+    }
+}
+
+// Update quiz UI elements
+function updateAdaptiveQuizUI() {
+    document.getElementById('adaptiveQuizTitle').textContent = adaptiveQuizState.topicName;
+    document.getElementById('adaptiveQuestionNum').textContent = adaptiveQuizState.questionNumber;
+    document.getElementById('adaptiveTotalQuestions').textContent = adaptiveQuizState.numQuestions;
+    document.getElementById('adaptiveCurrentLevel').textContent = adaptiveQuizState.currentLevel;
+    document.getElementById('adaptiveScore').textContent = adaptiveQuizState.score;
+    document.getElementById('adaptiveMaxScore').textContent = adaptiveQuizState.numQuestions;
+    document.getElementById('adaptiveBannerLevel').textContent = adaptiveQuizState.currentLevel;
+    document.getElementById('adaptiveLevelName').textContent = LEVEL_NAMES[adaptiveQuizState.currentLevel] || '';
+    document.getElementById('adaptiveStreak').textContent = adaptiveQuizState.streak;
+}
+
+// Render level progress bar
+function renderLevelBar() {
+    const bar = document.getElementById('adaptiveLevelBar');
+    bar.innerHTML = Array.from({length: 10}, (_, i) => {
+        const level = i + 1;
+        let classes = 'adaptive-level-dot';
+        if (level < adaptiveQuizState.currentLevel) {
+            classes += ' completed';
+        } else if (level === adaptiveQuizState.currentLevel) {
+            classes += ' active';
+        }
+        return `<div class="${classes}" title="Level ${level}"></div>`;
+    }).join('');
+}
+
+// Render a question
+function renderAdaptiveQuestion(question) {
+    adaptiveQuizState.currentQuestion = question;
+    adaptiveQuizState.selectedAnswer = null;
+    adaptiveQuizState.isAnswered = false;
+    
+    // Handle image (SVG graphics)
+    const imageContainer = document.getElementById('adaptiveQuestionImage');
+    if (question.image_svg) {
+        imageContainer.innerHTML = question.image_svg;
+        imageContainer.classList.remove('hidden');
+    } else {
+        imageContainer.innerHTML = '';
+        imageContainer.classList.add('hidden');
+    }
+    
+    document.getElementById('adaptiveQuestionText').textContent = question.text;
+    
+    const container = document.getElementById('adaptiveOptionsContainer');
+    container.innerHTML = question.options.map((opt, idx) => `
+        <button class="adaptive-option w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-purple-400 hover:bg-purple-50 transition-all flex items-center gap-3"
+                onclick="selectAdaptiveAnswer(${idx})" data-index="${idx}">
+            <span class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-600">
+                ${String.fromCharCode(65 + idx)}
+            </span>
+            <span class="flex-1">${opt}</span>
+        </button>
+    `).join('');
+    
+    // Hide feedback and next button
+    document.getElementById('adaptiveFeedback').classList.add('hidden');
+    document.getElementById('adaptiveNextBtn').classList.add('hidden');
+}
+
+// Select an answer
+function selectAdaptiveAnswer(index) {
+    if (adaptiveQuizState.isAnswered) return;
+    
+    adaptiveQuizState.selectedAnswer = index;
+    
+    // Update button styles
+    document.querySelectorAll('.adaptive-option').forEach((btn, i) => {
+        btn.classList.remove('border-purple-500', 'bg-purple-100');
+        if (i === index) {
+            btn.classList.add('border-purple-500', 'bg-purple-100');
+        }
+    });
+    
+    // Submit the answer
+    submitAdaptiveAnswer();
+}
+
+// Submit answer
+async function submitAdaptiveAnswer() {
+    if (adaptiveQuizState.selectedAnswer === null) return;
+    
+    adaptiveQuizState.isAnswered = true;
+    const previousLevel = adaptiveQuizState.currentLevel;
+    
+    try {
+        const response = await fetch('/api/quiz-adaptive/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                answer: adaptiveQuizState.selectedAnswer,
+                time_taken: 30
+            })
+        });
+        
+        const data = await response.json();
+        
+        // Update score
+        if (data.correct) {
+            adaptiveQuizState.score++;
+            adaptiveQuizState.streak++;
+        } else {
+            adaptiveQuizState.streak = 0;
+        }
+        
+        // Update level
+        adaptiveQuizState.currentLevel = data.current_level;
+        
+        // Show feedback
+        showAdaptiveFeedback(data);
+        
+        // Update UI
+        updateAdaptiveQuizUI();
+        renderLevelBar();
+        
+        // Highlight correct/incorrect answers
+        document.querySelectorAll('.adaptive-option').forEach((btn, i) => {
+            btn.classList.remove('hover:border-purple-400', 'hover:bg-purple-50');
+            btn.style.cursor = 'default';
+            
+            if (i === data.correct_answer) {
+                btn.classList.remove('border-gray-200', 'border-purple-500', 'bg-purple-100');
+                btn.classList.add('border-green-500', 'bg-green-100');
+                btn.querySelector('span:first-child').classList.remove('bg-gray-200');
+                btn.querySelector('span:first-child').classList.add('bg-green-500', 'text-white');
+            } else if (i === adaptiveQuizState.selectedAnswer && !data.correct) {
+                btn.classList.remove('border-gray-200', 'border-purple-500', 'bg-purple-100');
+                btn.classList.add('border-red-500', 'bg-red-100');
+                btn.querySelector('span:first-child').classList.remove('bg-gray-200');
+                btn.querySelector('span:first-child').classList.add('bg-red-500', 'text-white');
+            }
+        });
+        
+        // Show level change animation
+        if (data.current_level !== previousLevel) {
+            showLevelChangeToast(previousLevel, data.current_level);
+        }
+        
+        // Check if quiz complete
+        if (data.quiz_complete) {
+            console.log('Quiz complete! Showing results...', data);
+            // Hide next button, show results after a short delay
+            document.getElementById('adaptiveNextBtn').classList.add('hidden');
+            setTimeout(() => {
+                showAdaptiveResults(data);
+            }, 2500);
+        } else {
+            // Store next question
+            adaptiveQuizState.currentQuestion = data.next_question;
+            document.getElementById('adaptiveNextBtn').classList.remove('hidden');
+        }
+        
+    } catch (error) {
+        console.error('Error submitting answer:', error);
+        alert('Error submitting answer. Please try again.');
+    }
+}
+
+// Show feedback
+function showAdaptiveFeedback(data) {
+    const feedback = document.getElementById('adaptiveFeedback');
+    const icon = document.getElementById('adaptiveFeedbackIcon');
+    const title = document.getElementById('adaptiveFeedbackTitle');
+    const explanation = document.getElementById('adaptiveFeedbackExplanation');
+    
+    feedback.classList.remove('hidden', 'bg-green-100', 'bg-red-100');
+    
+    if (data.correct) {
+        feedback.classList.add('bg-green-100');
+        icon.textContent = '✅';
+        title.textContent = 'Correct! ' + getEncouragement(adaptiveQuizState.streak);
+        title.className = 'font-bold text-lg mb-2 text-green-800';
+    } else {
+        feedback.classList.add('bg-red-100');
+        icon.textContent = '❌';
+        title.textContent = 'Not quite...';
+        title.className = 'font-bold text-lg mb-2 text-red-800';
+    }
+    
+    explanation.textContent = data.explanation;
+}
+
+// Get encouragement text
+function getEncouragement(streak) {
+    if (streak >= 5) return '🔥 On Fire!';
+    if (streak >= 3) return '⭐ Great streak!';
+    if (streak >= 2) return '👍 Keep it up!';
+    return '';
+}
+
+// Show level change toast
+function showLevelChangeToast(fromLevel, toLevel) {
+    const isUp = toLevel > fromLevel;
+    
+    const toast = document.createElement('div');
+    toast.className = `level-change-toast ${isUp ? 'level-up' : 'level-down'}`;
+    toast.innerHTML = `
+        <div class="text-5xl mb-3">${isUp ? '🚀' : '📚'}</div>
+        <div class="text-2xl font-bold ${isUp ? 'text-green-600' : 'text-amber-600'}">
+            ${isUp ? 'Level Up!' : 'Level Adjusted'}
+        </div>
+        <div class="text-4xl font-bold mt-2">
+            ${fromLevel} → ${toLevel}
+        </div>
+        <div class="text-gray-600 mt-2">
+            ${isUp ? LEVEL_NAMES[toLevel] : 'Let\'s practice more!'}
+        </div>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Remove after animation
+    setTimeout(() => {
+        toast.style.animation = 'levelPopOut 0.3s ease forwards';
+        setTimeout(() => toast.remove(), 300);
+    }, 2000);
+}
+
+// Next question
+function adaptiveNextQuestion() {
+    if (adaptiveQuizState.currentQuestion) {
+        adaptiveQuizState.questionNumber++;
+        updateAdaptiveQuizUI();
+        renderAdaptiveQuestion(adaptiveQuizState.currentQuestion);
+    }
+}
+
+// Show results
+function showAdaptiveResults(data) {
+    document.getElementById('adaptiveQuizScreen').classList.add('hidden');
+    document.getElementById('adaptiveResultsScreen').classList.remove('hidden');
+    
+    const percent = data.final_percentage;
+    document.getElementById('adaptiveFinalScore').textContent = data.final_score;
+    document.getElementById('adaptiveFinalTotal').textContent = adaptiveQuizState.numQuestions;
+    document.getElementById('adaptiveFinalPercent').textContent = Math.round(percent);
+    
+    // Emoji based on performance
+    let emoji = '🎉';
+    if (percent >= 90) emoji = '🏆';
+    else if (percent >= 70) emoji = '⭐';
+    else if (percent >= 50) emoji = '👍';
+    else emoji = '💪';
+    document.getElementById('adaptiveResultEmoji').textContent = emoji;
+    
+    // Level progress
+    document.getElementById('adaptiveStartLevelResult').textContent = data.starting_level;
+    document.getElementById('adaptiveEndLevelResult').textContent = data.ending_level;
+    
+    const levelChange = data.ending_level - data.starting_level;
+    const levelText = document.getElementById('adaptiveLevelChangeText');
+    if (levelChange > 0) {
+        levelText.textContent = `+${levelChange} Level${levelChange > 1 ? 's' : ''}! 🚀`;
+        levelText.className = 'text-sm text-green-600 font-medium mt-2';
+    } else if (levelChange < 0) {
+        levelText.textContent = `${levelChange} Level${levelChange < -1 ? 's' : ''} - Keep practicing!`;
+        levelText.className = 'text-sm text-amber-600 font-medium mt-2';
+    } else {
+        levelText.textContent = 'Steady progress! 💪';
+        levelText.className = 'text-sm text-blue-600 font-medium mt-2';
+    }
+}
+
+// Restart quiz
+function restartAdaptiveQuiz() {
+    document.getElementById('adaptiveResultsScreen').classList.add('hidden');
+    showAdaptiveQuizModal();
+}
+
+// Close results
+function closeAdaptiveResults() {
+    document.getElementById('adaptiveResultsScreen').classList.add('hidden');
+}
+
+// Abandon quiz
+async function abandonAdaptiveQuiz() {
+    if (confirm('Are you sure you want to exit? Your progress will be lost.')) {
+        try {
+            await fetch('/api/quiz-adaptive/abandon', { method: 'POST' });
+        } catch (e) {
+            // Ignore errors
+        }
+        document.getElementById('adaptiveQuizScreen').classList.add('hidden');
+    }
+}
+</script>
 
 </body>
 </html>
